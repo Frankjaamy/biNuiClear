@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Diagnostics;
 
 using GameActor;
 
@@ -51,6 +52,7 @@ namespace biNUICLeAR
 
         Tiles[,] mapTiles;
         Soldier soldier;
+        Animator animator;
 
         MouseState currentMouseState;
         KeyboardState currentKeyState;
@@ -102,7 +104,6 @@ namespace biNUICLeAR
             }
 
             soldier = new Soldier();
-
             pathFinder = new PathFinder();
             pathFinder.initialize();
             base.Initialize();
@@ -129,8 +130,11 @@ namespace biNUICLeAR
 
                 mapPosIndex ++;
             }
+            // Make texture change here
+            Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\Actor");
 
-            Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\werewolf");
+            animator = new Animator(textureSoldier, 4, 12);
+
             Vector2 imageStartPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y
                                                 + (ConstValues.getTilesVertical / 2) * ConstValues.getTileSize);
 
@@ -164,6 +168,7 @@ namespace biNUICLeAR
 
             // TODO: Add your update logic here
             UpdatePlayer(gameTime);
+            animator.Update();
             base.Update(gameTime);
         }
 
@@ -181,7 +186,8 @@ namespace biNUICLeAR
                 p.Draw(spriteBatch);
             }              
 
-            soldier.Draw(spriteBatch);
+            //soldier.Draw(spriteBatch);
+            animator.Draw(spriteBatch, soldier.Position, soldier.direction);
 
             spriteBatch.End();
             base.Draw(gameTime);
@@ -238,6 +244,7 @@ namespace biNUICLeAR
                         int y = pathFinder.getPathNodes[currentPathIndex].y * ConstValues.getTileSize;
                         soldier.DestPosition = new Vector2(x, y);
                         soldier.Direction = soldier.DestPosition - soldier.Position;
+                        Debug.Write("Refugee pos " + soldier.Direction.ToString());
                     }
 
                 }

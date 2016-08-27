@@ -12,11 +12,11 @@ namespace GameActor
 
         public int Width
         {
-            get { return PlayerTexture.Width; }
+            get { return (PlayerTexture.Width/12); }
         }
         public int Height
         {
-            get { return PlayerTexture.Height; }
+            get { return (PlayerTexture.Height/4); }
         }
 
         virtual public void Initialize(Texture2D texture, Vector2 position)
@@ -76,7 +76,8 @@ namespace GameActor
         public float _speed = 1.6f;
 
         public Vector2 destPosition;
-        public Vector2 direction;
+        //Read to know which animation to play
+        public Vector2 direction = new Vector2(0f,0f);
 
         public int Health
         {
@@ -110,7 +111,8 @@ namespace GameActor
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(PlayerTexture, Position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+            //Now using Animator instead
+            //spriteBatch.Draw(PlayerTexture, Position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
         }
 
         public bool march()
