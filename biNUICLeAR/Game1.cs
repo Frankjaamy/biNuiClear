@@ -3,6 +3,10 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 using GameActor;
 
@@ -51,8 +55,8 @@ namespace biNUICLeAR
         SpriteBatch spriteBatch;
 
         Tiles[,] mapTiles;
-        Soldier soldier;
-        Animator animator;
+
+        private List<Soldier> refugees;
 
         MouseState currentMouseState;
         KeyboardState currentKeyState;
@@ -60,9 +64,6 @@ namespace biNUICLeAR
         PathFinder pathFinder;
         bool isGameStart = false;
 
-        int currentPathIndex = 0;
-
-        Vector2 startPosition;
         Vector2 endPosition = new Vector2(63,23);
         public bool IsGameStart
         {
@@ -102,10 +103,19 @@ namespace biNUICLeAR
                     mapTiles[i, j].IsBlock = true;
                 }
             }
+            refugees = new List<Soldier>();
 
-            soldier = new Soldier();
+            for (int i = 0; i < 10; i++)
+            {
+                Soldier tempSoldier = new Soldier();
+                tempSoldier.currentPathIndex = i;
+                refugees.Add(tempSoldier);
+            }
+
+
             pathFinder = new PathFinder();
             pathFinder.initialize();
+
             base.Initialize();
         }
 
@@ -133,16 +143,13 @@ namespace biNUICLeAR
             // Make texture change here
             Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\Actor");
 
-            animator = new Animator(textureSoldier, 4, 12);
-
             Vector2 imageStartPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y
                                                 + (ConstValues.getTilesVertical / 2) * ConstValues.getTileSize);
-
-            soldier.Initialize(textureSoldier, imageStartPosition);
-
-            startPosition = new Vector2(0, ConstValues.getTilesVertical / 2);
+            
+            foreach (Soldier element in refugees)
+                element.Initialize(textureSoldier, imageStartPosition);
+           
             endPosition = new Vector2(ConstValues.getTilesHorizontal - 1, ConstValues.getTilesVertical / 2);
-
 
 
         }
@@ -168,7 +175,9 @@ namespace biNUICLeAR
 
             // TODO: Add your update logic here
             UpdatePlayer(gameTime);
-            animator.Update();
+            foreach (Soldier element in refugees)
+                element.Update();
+            
             base.Update(gameTime);
         }
 
@@ -182,12 +191,11 @@ namespace biNUICLeAR
             // TODO: Add your drawing code here
             spriteBatch.Begin();
             foreach(Tiles p in mapTiles)
-            {
                 p.Draw(spriteBatch);
-            }              
 
-            //soldier.Draw(spriteBatch);
-            animator.Draw(spriteBatch, soldier.Position, soldier.direction);
+            foreach (Soldier element in refugees)
+                element.Draw(spriteBatch);
+            
 
             spriteBatch.End();
             base.Draw(gameTime);
@@ -195,8 +203,6 @@ namespace biNUICLeAR
 
         private void UpdatePlayer(GameTime gameTime)
         {
-
-            //soldier.Position.X += gameTime.ElapsedGameTime;
             currentMouseState = Mouse.GetState();
             currentKeyState = Keyboard.GetState();
 
@@ -204,16 +210,18 @@ namespace biNUICLeAR
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
                 UpdateBlocks(mousePosition.X, mousePosition.Y);
-                pathFinder.PathFinding(mapTiles, (int)soldier.Position.X / ConstValues.getTileSize, (int)soldier.Position.Y / ConstValues.getTileSize, 63, 24);
+
+                
+                    pathFinder.PathFinding(mapTiles, (int)refugees[0].Position.X / ConstValues.getTileSize, (int)refugees[0].Position.Y / ConstValues.getTileSize, 63, 24);
             }
 
             if (currentMouseState.RightButton == ButtonState.Pressed)
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
                 updateFlags(mousePosition.X, mousePosition.Y);
-                pathFinder.PathFinding(mapTiles, (int)soldier.Position.X / ConstValues.getTileSize, (int)soldier.Position.Y / ConstValues.getTileSize, 63, 24);
+                
+               pathFinder.PathFinding(mapTiles, (int)refugees[0].Position.X / ConstValues.getTileSize, (int)refugees[0].Position.Y / ConstValues.getTileSize, 63, 24);
             }
-
 
             if (currentKeyState.IsKeyDown(Keys.Space))
             {
@@ -222,35 +230,45 @@ namespace biNUICLeAR
 
             if(currentKeyState.IsKeyDown(Keys.Back))
             {
-                currentPathIndex = 0;
-                soldier.Position.X = startPosition.X * ConstValues.getTileSize;
-                soldier.Position.Y = startPosition.Y * ConstValues.getTileSize;
-                pathFinder.PathFinding(mapTiles, (int)startPosition.X, (int)startPosition.Y, (int)endPosition.X, (int)endPosition.Y);
+                
+                foreach (Soldier element in refugees)
+                {
+                    element.currentPathIndex = 0;
+                    element.Position.X = element.startPosition.X * ConstValues.getTileSize;
+                    element.Position.Y = element.startPosition.Y * ConstValues.getTileSize;
+                    pathFinder.PathFinding(mapTiles, (int)element.startPosition.X, (int)element.startPosition.Y, (int)endPosition.X, (int)endPosition.Y);
 
-                soldier.DestPosition = soldier.Position;
+                    element.DestPosition = element.Position;
+                    Debug.Write(element.Position);
+                }
             }
             if (IsGameStart)
             {
+
+
                 if (pathFinder.getPathNodes.Count <= 0)
                 {
                     return;
                 }
-                if (soldier.march())
+
+                foreach (Soldier element in refugees)
                 {
-                    currentPathIndex +=1;
-                    if(currentPathIndex < pathFinder.getPathNodes.Count)
+                    if (element.march())
                     {
-                        int x = pathFinder.getPathNodes[currentPathIndex].x * ConstValues.getTileSize;
-                        int y = pathFinder.getPathNodes[currentPathIndex].y * ConstValues.getTileSize;
-                        soldier.DestPosition = new Vector2(x, y);
-                        soldier.Direction = soldier.DestPosition - soldier.Position;
-                        Debug.Write("Refugee pos " + soldier.Direction.ToString());
+                        element.currentPathIndex += 1;
+                        if (element.currentPathIndex < pathFinder.getPathNodes.Count)
+                        {
+                            int x = pathFinder.getPathNodes[element.currentPathIndex].x * ConstValues.getTileSize;
+                            int y = pathFinder.getPathNodes[element.currentPathIndex].y * ConstValues.getTileSize;
+                            element.DestPosition = new Vector2(x, y);
+                            element.Direction = element.DestPosition - element.Position;
+                        }
                     }
 
+                    element.Position.X = MathHelper.Clamp(element.Position.X, 0, GraphicsDevice.Viewport.Width - element.Width);
+                    element.Position.Y = MathHelper.Clamp(element.Position.Y, 0, GraphicsDevice.Viewport.Height - element.Height);
                 }
 
-                soldier.Position.X = MathHelper.Clamp(soldier.Position.X, 0, GraphicsDevice.Viewport.Width - soldier.Width);
-                soldier.Position.Y = MathHelper.Clamp(soldier.Position.Y, 0, GraphicsDevice.Viewport.Height - soldier.Height);
             }
         }
 
@@ -281,9 +299,12 @@ namespace biNUICLeAR
                 mapTiles[indexY, indexX].isBlock = false;
                 mapTiles[indexY, indexX].UpdateTexture(Content.Load<Texture2D>("Graphics\\tileground"));
             }
-
-
-            currentPathIndex = 0;
+            int j = 0;
+            foreach (Soldier element in refugees)
+            {
+                element.currentPathIndex = j;
+                j++;
+            }
         }
 
         private void updateFlags(float posX, float posY)
@@ -316,7 +337,13 @@ namespace biNUICLeAR
                     mapTiles[indexY, indexX].UpdateTexture(Content.Load<Texture2D>("Graphics\\tileFlag"));
                 }
             }
-            currentPathIndex = 0;
+            int j = 0;
+            foreach(Soldier element in refugees)
+            {
+                element.currentPathIndex = j;
+                j++;
+            }
+
         }
     }
 

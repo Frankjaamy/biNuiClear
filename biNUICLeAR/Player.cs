@@ -75,9 +75,13 @@ namespace GameActor
         public int _health;
         public float _speed = 1.6f;
 
+        public int currentPathIndex = 0;
+
         public Vector2 destPosition;
-        //Read to know which animation to play
+        public Vector2 startPosition;
         public Vector2 direction = new Vector2(0f,0f);
+
+        Animator animator;
 
         public int Health
         {
@@ -91,6 +95,12 @@ namespace GameActor
             get { return direction; }
         }
 
+        public Vector2 StartPosition
+        {
+            set { startPosition = value; }
+            get { return startPosition; }
+        }
+
         public Vector2 DestPosition
         {
             set { destPosition = value; }
@@ -99,20 +109,21 @@ namespace GameActor
         public override void Initialize(Texture2D texture, Vector2 position)
         {
             PlayerTexture = texture;
-
             Position = position;
             DestPosition = position;
 
             _health = 100;
+            animator = new Animator(PlayerTexture, 4, 12);
         }
         public override void Update()
         {
-
+            animator.Update();
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
             //Now using Animator instead
             //spriteBatch.Draw(PlayerTexture, Position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+            animator.Draw(spriteBatch, Position, direction);
         }
 
         public bool march()
@@ -123,8 +134,8 @@ namespace GameActor
             }
             else
             {
-                Position.X += direction.X*1/ ConstValues.getTileSize;
-                Position.Y += direction.Y*1/ ConstValues.getTileSize;
+                Position.X += direction.X/ ConstValues.getTileSize;
+                Position.Y += direction.Y/ ConstValues.getTileSize;
                 return false;
             }
 

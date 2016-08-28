@@ -36,7 +36,6 @@ namespace biNUICLeAR
         public void Update()
         {
             frameCounter++;
-            Debug.Write(frameCounter);
             if (frameCounter > 12)
             {
                 currentFrame++;
@@ -44,7 +43,6 @@ namespace biNUICLeAR
                 {
                     currentFrame = 0;
                 }
-                Debug.Write(currentFrame);
                 frameCounter = 0;
             }
         }
@@ -60,6 +58,8 @@ namespace biNUICLeAR
                 if (direction.Y < 0)
                     Row = 3;
                 else if (direction.Y > 0)
+                    Row = 0;
+                else
                     Row = 0;
             }
             //Right movement
