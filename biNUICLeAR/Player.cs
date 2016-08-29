@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 
 using biNUICLeAR;
 namespace GameActor
@@ -108,6 +109,8 @@ namespace GameActor
         }
         public override void Initialize(Texture2D texture, Vector2 position)
         {
+            startPosition = position;
+            Debug.Write(position);
             PlayerTexture = texture;
             Position = position;
             DestPosition = position;

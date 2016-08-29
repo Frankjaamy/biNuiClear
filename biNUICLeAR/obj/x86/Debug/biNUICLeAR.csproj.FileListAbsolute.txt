@@ -39,3 +39,24 @@ C:\Users\U1087208\Documents\Rapid prototyping\biNUICLeAR\biNUICLeAR\bin\Windows\
 C:\Users\U1087208\Documents\Rapid prototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\MonoGame.Framework.xml
 C:\Users\U1087208\Documents\Rapid prototyping\biNUICLeAR\biNUICLeAR\obj\x86\Debug\biNUICLeAR.csprojResolveAssemblyReference.cache
 C:\Users\U1087208\Documents\Rapid prototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\Content\Graphics\Actor.png
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\obj\x86\Debug\biNUICLeAR.exe
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\obj\x86\Debug\biNUICLeAR.pdb
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\Content\Graphics\Actor.png
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\Content\Graphics\tileblock.png
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\Content\Graphics\tileFlag.png
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\Content\Graphics\tileground.png
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\Content\Graphics\werewolf.png
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\biNUICLeAR.exe
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\biNUICLeAR.pdb
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\MonoGame.Framework.dll
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\SharpDX.MediaFoundation.dll
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\SharpDX.dll
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\SharpDX.XAudio2.dll
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\SharpDX.DXGI.dll
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\SharpDX.Direct3D11.dll
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\SharpDX.Direct2D1.dll
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\SharpDX.XInput.dll
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\SharpDX.RawInput.dll
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\SharpDX.Direct3D9.dll
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\bin\Windows\x86\Debug\MonoGame.Framework.xml
+C:\Users\U1087208\Documents\Rapidprototyping\biNUICLeAR\biNUICLeAR\obj\x86\Debug\biNUICLeAR.csprojResolveAssemblyReference.cache

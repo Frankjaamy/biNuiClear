@@ -62,6 +62,7 @@ namespace biNUICLeAR
         KeyboardState currentKeyState;
 
         PathFinder pathFinder;
+        Camera camera;
         bool isGameStart = false;
 
         Vector2 endPosition = new Vector2(63,23);
@@ -112,7 +113,7 @@ namespace biNUICLeAR
                 refugees.Add(tempSoldier);
             }
 
-
+            camera = new Camera(GraphicsDevice.Viewport);
             pathFinder = new PathFinder();
             pathFinder.initialize();
 
@@ -175,6 +176,7 @@ namespace biNUICLeAR
 
             // TODO: Add your update logic here
             UpdatePlayer(gameTime);
+            camera.Update(gameTime);
             foreach (Soldier element in refugees)
                 element.Update();
             
@@ -189,7 +191,8 @@ namespace biNUICLeAR
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             // TODO: Add your drawing code here
-            spriteBatch.Begin();
+            var viewMatrix = camera.GetViewMatrix();
+            spriteBatch.Begin(transformMatrix: viewMatrix);
             foreach(Tiles p in mapTiles)
                 p.Draw(spriteBatch);
 
@@ -200,7 +203,6 @@ namespace biNUICLeAR
             spriteBatch.End();
             base.Draw(gameTime);
         }
-
         private void UpdatePlayer(GameTime gameTime)
         {
             currentMouseState = Mouse.GetState();
@@ -209,7 +211,8 @@ namespace biNUICLeAR
             if (currentMouseState.LeftButton == ButtonState.Pressed)
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
-                UpdateBlocks(mousePosition.X, mousePosition.Y);
+                Vector2 worldPosition = Vector2.Transform(mousePosition, Matrix.Invert(camera.GetViewMatrix()));
+                UpdateBlocks(worldPosition.X, worldPosition.Y);
 
                 
                     pathFinder.PathFinding(mapTiles, (int)refugees[0].Position.X / ConstValues.getTileSize, (int)refugees[0].Position.Y / ConstValues.getTileSize, 63, 24);
@@ -218,7 +221,8 @@ namespace biNUICLeAR
             if (currentMouseState.RightButton == ButtonState.Pressed)
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
-                updateFlags(mousePosition.X, mousePosition.Y);
+                Vector2 worldPosition = Vector2.Transform(mousePosition, Matrix.Invert(camera.GetViewMatrix()));
+                updateFlags(worldPosition.X, worldPosition.Y);
                 
                pathFinder.PathFinding(mapTiles, (int)refugees[0].Position.X / ConstValues.getTileSize, (int)refugees[0].Position.Y / ConstValues.getTileSize, 63, 24);
             }
@@ -234,8 +238,9 @@ namespace biNUICLeAR
                 foreach (Soldier element in refugees)
                 {
                     element.currentPathIndex = 0;
-                    element.Position.X = element.startPosition.X * ConstValues.getTileSize;
-                    element.Position.Y = element.startPosition.Y * ConstValues.getTileSize;
+                    element.Position.X = element.startPosition.X;
+                    element.Position.Y = element.startPosition.Y;
+                    Debug.Write(element.startPosition);
                     pathFinder.PathFinding(mapTiles, (int)element.startPosition.X, (int)element.startPosition.Y, (int)endPosition.X, (int)endPosition.Y);
 
                     element.DestPosition = element.Position;
