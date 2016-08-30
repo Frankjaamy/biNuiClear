@@ -22,7 +22,7 @@ namespace biNUICLeAR
             _viewport = viewport;
 
             Rotation = 0;
-            Zoom = 7;
+            Zoom = 2;
             Origin = new Vector2(0, viewport.Height / 2f);
             Position = Vector2.Zero;
             previousScrollValue = Mouse.GetState().ScrollWheelValue;
@@ -50,7 +50,7 @@ namespace biNUICLeAR
             KeyboardState keyboardState = Keyboard.GetState();
             mouseState = Mouse.GetState();
 
-            if (mouseState.ScrollWheelValue < previousScrollValue /*&& Zoom > 1*/)
+            if (mouseState.ScrollWheelValue < previousScrollValue && Zoom > 1)
             {
                 Zoom-= (float)0.25;
             }
