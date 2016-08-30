@@ -11,11 +11,25 @@ using System.Threading.Tasks;
 using biNUICLeAR;
 namespace GameActor
 {
+    public enum ActorType
+    {
+        typeSoldier,
+        typeEnemyWander
+    } ;
     class BasicActor
     {
         public Texture2D PlayerTexture;
         public Vector2 Position;
+        public int sizeX = 1;
+        public int sizeY = 1;
 
+        protected ActorType actorType;
+        protected Animator animator;
+
+        public ActorType GetActorType
+        {
+            get { return actorType; }
+        }
         public int Width
         {
             get { return (PlayerTexture.Width/12); }
@@ -32,9 +46,10 @@ namespace GameActor
             Position = position;
         }
 
-        virtual public void Update(){;}
+        virtual public void Update(){ animator.Update(); }
         virtual public void Draw(SpriteBatch sb) {;}
     }
+    
     class Tiles: BasicActor
     {
         public bool Active;
@@ -62,7 +77,6 @@ namespace GameActor
         }
         public override void Update()
         {
-
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
@@ -75,26 +89,33 @@ namespace GameActor
             get { return isBlock; }
         }
     }
-
-    class Soldier : BasicActor
+    class MoveableActor : BasicActor
     {
-        public int _health;
-        public float _speed = 1.6f;
-
-        public int currentPathIndex = 0;
-
         public Vector2 destPosition;
         public Vector2 startPosition;
         public Vector2 direction = new Vector2(0f,0f);
 
-        Animator animator;
-        PathFinder pathFinder;
+        public float speed;
+        public int health;
 
+        public float Speed
+        {
+            get { return speed; }
+            set { speed = value; }
+        }
         public int Health
         {
-            set { _health = value; }
-            get { return _health; }
+            get { return health; }
+            set { health = value; }
         }
+    }
+    class Soldier : MoveableActor
+    {
+        
+        public float soldierSpeed = 1.0f;
+        public int currentPathIndex = 0;
+        PathFinder pathFinder;
+
 
         public Vector2 Direction
         {
@@ -117,26 +138,23 @@ namespace GameActor
         {
             startPosition = position;
             PlayerTexture = texture;
-            Position = position;
+            this.Position = position;
             DestPosition = position;
 
-            _health = 100;
+            actorType = ActorType.typeSoldier; 
+            Health = 100;
             animator = new Animator(PlayerTexture, 4, 12);
 
             pathFinder = new PathFinder();
             pathFinder.initialize();
         }
-        public override void Update()
-        {
-            animator.Update();
-        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
             //Now using Animator instead
             //spriteBatch.Draw(PlayerTexture, Position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
             animator.Draw(spriteBatch, Position, direction);
         }
-
         public void march(int viewpostWidth, int viewportHeight)
         {
             if ( Vector2.Distance(Position,DestPosition) <= 0.05f)
@@ -155,17 +173,15 @@ namespace GameActor
             }
             else
             {
-                Position.X += direction.X/ ConstValues.getTileSize;
-                Position.Y += direction.Y/ ConstValues.getTileSize;
+                Position.X += direction.X * soldierSpeed/ ConstValues.getTileSize;
+                Position.Y += direction.Y * soldierSpeed / ConstValues.getTileSize;
             }
 
         }
-
         public void recalculatePath(Tiles[,] map, Vector2 endPoint)
         {
             pathFinder.PathFinding(map, (int)Position.X/ConstValues.getTileSize, (int)Position.Y/ConstValues.getTileSize, (int)endPoint.X, (int)endPoint.Y);
         }
-
         public bool endofpath()
         {
             if (pathFinder.getPathNodes.Count <= 0)
@@ -176,6 +192,55 @@ namespace GameActor
             else
                 return false;
         }
+    }
 
+    class Enemy : MoveableActor
+    {
+        public int searchingRadius;
+        public float wandererSpeed = 1.5f;
+        public bool isSearchingMode;
+        public bool isHuntingMode;
+        public bool isDead;
+
+        public Vector2 Direction
+        {
+            set { direction = value; }
+            get { return direction; }
+        }
+        public Vector2 StartPosition
+        {
+            set { startPosition = value; }
+            get { return startPosition; }
+        }
+        public Vector2 DestPosition
+        {
+            set { destPosition = value; }
+            get { return destPosition; }
+        }
+
+        public override void Initialize(Texture2D texture, Vector2 position)
+        {
+            startPosition = position;
+            PlayerTexture = texture;
+            this.Position = position;
+            DestPosition = position;
+            actorType = ActorType.typeSoldier;
+            animator = new Animator(PlayerTexture, 4, 12);
+
+            isHuntingMode = isDead = isSearchingMode = false;
+            searchingRadius = 2;
+        }
+        public override void Update()
+        {
+            animator.Update();
+        }
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            animator.Draw(spriteBatch, Position, direction);
+        }
+        public bool searchingTarget()
+        {
+            return true;
+        }
     }
 }

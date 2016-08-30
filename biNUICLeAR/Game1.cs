@@ -77,6 +77,11 @@ namespace biNUICLeAR
             Content.RootDirectory = "Content";
         }
 
+        public bool isActorInTheBlock(Vector2 currentBlock, ActorType aType)
+        {
+
+            return true;
+        }
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
         /// This is where it can query for any required services and load any non-graphic
