@@ -61,7 +61,6 @@ namespace biNUICLeAR
         MouseState currentMouseState;
         KeyboardState currentKeyState;
 
-        PathFinder pathFinder;
         Camera camera;
         bool isGameStart = false;
 
@@ -109,13 +108,11 @@ namespace biNUICLeAR
             for (int i = 0; i < 10; i++)
             {
                 Soldier tempSoldier = new Soldier();
-                tempSoldier.currentPathIndex = i;
+                tempSoldier.currentPathIndex = 0;
                 refugees.Add(tempSoldier);
             }
 
             camera = new Camera(GraphicsDevice.Viewport);
-            pathFinder = new PathFinder();
-            pathFinder.initialize();
 
             base.Initialize();
         }
@@ -143,12 +140,16 @@ namespace biNUICLeAR
             }
             // Make texture change here
             Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\Actor");
-
-            Vector2 imageStartPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y
-                                                + (ConstValues.getTilesVertical / 2) * ConstValues.getTileSize);
-            
+            int i = 0;
             foreach (Soldier element in refugees)
+            {
+                Vector2 imageStartPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X + (i*ConstValues.getTileSize), GraphicsDevice.Viewport.TitleSafeArea.Y
+                       + (ConstValues.getTilesVertical / 2) * ConstValues.getTileSize);
                 element.Initialize(textureSoldier, imageStartPosition);
+                element.recalculatePath(mapTiles, new Vector2(63, 24));
+                i++;
+            }
+
            
             endPosition = new Vector2(ConstValues.getTilesHorizontal - 1, ConstValues.getTilesVertical / 2);
 
@@ -214,17 +215,20 @@ namespace biNUICLeAR
                 Vector2 worldPosition = Vector2.Transform(mousePosition, Matrix.Invert(camera.GetViewMatrix()));
                 UpdateBlocks(worldPosition.X, worldPosition.Y);
 
-                
-                    pathFinder.PathFinding(mapTiles, (int)refugees[0].Position.X / ConstValues.getTileSize, (int)refugees[0].Position.Y / ConstValues.getTileSize, 63, 24);
-            }
+                foreach (Soldier element in refugees)
+                {
+                    element.recalculatePath(mapTiles, new Vector2(63, 24));
+                }
+           }
 
             if (currentMouseState.RightButton == ButtonState.Pressed)
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
                 Vector2 worldPosition = Vector2.Transform(mousePosition, Matrix.Invert(camera.GetViewMatrix()));
                 updateFlags(worldPosition.X, worldPosition.Y);
-                
-               pathFinder.PathFinding(mapTiles, (int)refugees[0].Position.X / ConstValues.getTileSize, (int)refugees[0].Position.Y / ConstValues.getTileSize, 63, 24);
+
+                foreach (Soldier element in refugees)
+                    element.recalculatePath(mapTiles, new Vector2(63, 24));
             }
 
             if (currentKeyState.IsKeyDown(Keys.Space))
@@ -240,38 +244,21 @@ namespace biNUICLeAR
                     element.currentPathIndex = 0;
                     element.Position.X = element.startPosition.X;
                     element.Position.Y = element.startPosition.Y;
-                    Debug.Write(element.startPosition);
-                    pathFinder.PathFinding(mapTiles, (int)element.startPosition.X, (int)element.startPosition.Y, (int)endPosition.X, (int)endPosition.Y);
+                    element.recalculatePath(mapTiles, new Vector2(63, 24));
 
                     element.DestPosition = element.Position;
-                    Debug.Write(element.Position);
                 }
             }
             if (IsGameStart)
             {
 
-
-                if (pathFinder.getPathNodes.Count <= 0)
-                {
-                    return;
-                }
-
                 foreach (Soldier element in refugees)
                 {
-                    if (element.march())
+                    if (element.endofpath())
                     {
-                        element.currentPathIndex += 1;
-                        if (element.currentPathIndex < pathFinder.getPathNodes.Count)
-                        {
-                            int x = pathFinder.getPathNodes[element.currentPathIndex].x * ConstValues.getTileSize;
-                            int y = pathFinder.getPathNodes[element.currentPathIndex].y * ConstValues.getTileSize;
-                            element.DestPosition = new Vector2(x, y);
-                            element.Direction = element.DestPosition - element.Position;
-                        }
+                        return;
                     }
-
-                    element.Position.X = MathHelper.Clamp(element.Position.X, 0, GraphicsDevice.Viewport.Width - element.Width);
-                    element.Position.Y = MathHelper.Clamp(element.Position.Y, 0, GraphicsDevice.Viewport.Height - element.Height);
+                    element.march(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
                 }
 
             }
@@ -304,11 +291,9 @@ namespace biNUICLeAR
                 mapTiles[indexY, indexX].isBlock = false;
                 mapTiles[indexY, indexX].UpdateTexture(Content.Load<Texture2D>("Graphics\\tileground"));
             }
-            int j = 0;
             foreach (Soldier element in refugees)
             {
-                element.currentPathIndex = j;
-                j++;
+                element.currentPathIndex = 0;
             }
         }
 
@@ -342,11 +327,9 @@ namespace biNUICLeAR
                     mapTiles[indexY, indexX].UpdateTexture(Content.Load<Texture2D>("Graphics\\tileFlag"));
                 }
             }
-            int j = 0;
             foreach(Soldier element in refugees)
             {
-                element.currentPathIndex = j;
-                j++;
+                element.currentPathIndex = 0;
             }
 
         }

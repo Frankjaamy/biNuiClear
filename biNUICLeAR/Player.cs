@@ -1,7 +1,12 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using System;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 using biNUICLeAR;
 namespace GameActor
@@ -83,6 +88,7 @@ namespace GameActor
         public Vector2 direction = new Vector2(0f,0f);
 
         Animator animator;
+        PathFinder pathFinder;
 
         public int Health
         {
@@ -110,13 +116,15 @@ namespace GameActor
         public override void Initialize(Texture2D texture, Vector2 position)
         {
             startPosition = position;
-            Debug.Write(position);
             PlayerTexture = texture;
             Position = position;
             DestPosition = position;
 
             _health = 100;
             animator = new Animator(PlayerTexture, 4, 12);
+
+            pathFinder = new PathFinder();
+            pathFinder.initialize();
         }
         public override void Update()
         {
@@ -129,19 +137,44 @@ namespace GameActor
             animator.Draw(spriteBatch, Position, direction);
         }
 
-        public bool march()
+        public void march(int viewpostWidth, int viewportHeight)
         {
             if ( Vector2.Distance(Position,DestPosition) <= 0.05f)
             {
-                return true;
+                currentPathIndex += 1;
+                if (currentPathIndex < pathFinder.getPathNodes.Count)
+                {
+                    int x = pathFinder.getPathNodes[currentPathIndex].x * ConstValues.getTileSize;
+                    int y = pathFinder.getPathNodes[currentPathIndex].y * ConstValues.getTileSize;
+                    DestPosition = new Vector2(x, y);
+                    Direction = DestPosition - Position;
+                }
+
+                Position.X = MathHelper.Clamp(Position.X, 0, viewpostWidth - Width);
+                Position.Y = MathHelper.Clamp(Position.Y, 0, viewportHeight - Height);
             }
             else
             {
                 Position.X += direction.X/ ConstValues.getTileSize;
                 Position.Y += direction.Y/ ConstValues.getTileSize;
-                return false;
             }
 
+        }
+
+        public void recalculatePath(Tiles[,] map, Vector2 endPoint)
+        {
+            pathFinder.PathFinding(map, (int)Position.X/ConstValues.getTileSize, (int)Position.Y/ConstValues.getTileSize, (int)endPoint.X, (int)endPoint.Y);
+        }
+
+        public bool endofpath()
+        {
+            if (pathFinder.getPathNodes.Count <= 0)
+            {
+
+                return true;
+            }
+            else
+                return false;
         }
 
     }
