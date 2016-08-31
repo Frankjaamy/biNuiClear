@@ -103,7 +103,7 @@ namespace biNUICLeAR
             }
             return false;
         }
-        public bool PathFinding(Tiles[,] map,int startX,int startY,int endX,int endY,bool allowGoThroughDanger = false)
+        public bool PathFinding(Tiles[,] map,int startX,int startY,int endX,int endY,int sizeX=1, int sizeY =1, bool allowGoThroughDanger = false)
         {
             if(attempts >= 2)
             {
@@ -118,7 +118,7 @@ namespace biNUICLeAR
 
             this.endNode.x = endX;
             this.endNode.y = endY;
-            if (isBlock(map, endX, endY))
+            if (isBlock(map, endX, endY,sizeX,sizeY))
             {
                 return false;
             }
@@ -127,8 +127,8 @@ namespace biNUICLeAR
                 {0,-1},
                 //{-1,0},
                 {1,0},
-                //{-1,1},
-                //{-1,-1},
+                {-1,1},
+                {-1,-1},
                 {1,1},
                 {1,-1}
             };
@@ -150,7 +150,7 @@ namespace biNUICLeAR
                     closeList.Add(pCurrent);
                     openList.Remove(pCurrent);
 
-                    for(int i = 0; i < 5; i++)
+                    for(int i = 0; i < 7; i++)
                     {
                         int x = pCurrent.x + offset[i, 0];
                         int y = pCurrent.y + offset[i,1];
@@ -160,7 +160,7 @@ namespace biNUICLeAR
                         }
                         else
                         {
-                            if(!checkNodeInList(x,y,openList) && !checkNodeInList(x, y, closeList) && !isBlock(map, x, y) && ((!isFlag(map,x,y))||allowGoThroughDanger))
+                            if(!checkNodeInList(x,y,openList) && !checkNodeInList(x, y, closeList) && !isBlock(map, x, y,sizeX,sizeY) && ((!isFlag(map,x,y,sizeX,sizeY))||allowGoThroughDanger))
                             {
                                 PathNode chosenNode = new PathNode();
                                 initNode(chosenNode, pCurrent, x, y, endX, endY);
@@ -174,7 +174,7 @@ namespace biNUICLeAR
 
             if(openList.Count<=1 && (pCurrent.x!=endX || pCurrent.y != endY))
             {
-                if(!PathFinding(map,startX,startY,endX,endY,true))
+                if(!PathFinding(map,startX,startY,endX,endY,sizeX,sizeY,true))
                 {
                     pathNodeCount = 0;
                     return false;
@@ -200,53 +200,47 @@ namespace biNUICLeAR
             }
         }
 
-        public bool isBlock(Tiles[,] map, int y, int x)
+        public bool isBlock(Tiles[,] map, int y, int x, int sizeY =1, int sizeX =1)
         {
-            
-                int[,] offset =
+
+            for (int i = 0; i < sizeX; ++i)
+            {
+                for(int j = 0; j < sizeY; j++)
                 {
-                    {1,0},
-                    {0,1},
-                    {0,-1},
-                    {1,1},
-                    {1,-1}
-                };
-                for(int i = 0; i < 5; ++i)
-                {
-                    int indexX = x + offset[i, 0];
-                    int indexY = y + offset[i, 1];
+                    int indexX = x + i;
+                    int indexY = y + j;
                     indexX = indexX >= ConstValues.getTilesVertical ? ConstValues.getTilesVertical - 1 : indexX;
                     indexY = indexY >= ConstValues.getTilesHorizontal ? ConstValues.getTilesHorizontal - 1 : indexY;
                     indexY = indexY < 0 ? 0 : indexY;
-
+                    indexX = indexX < 0 ? 0 : indexX;
                     if (map[indexX, indexY].isBlock)
                     {
                         return true;
                     }
-
                 }
-            
-            if (map[x, y].isBlock)
-            {
-                return true;
             }
-            else
-            {
-                return false;
-            }
-            
+            return false;  
         }
 
-        public bool isFlag(Tiles[,] map,int y, int x)
+        public bool isFlag(Tiles[,] map,int y, int x, int sizeY = 1, int sizeX = 1)
         {
-            if (map[x, y].isFlag)
+            for (int i = 0; i < sizeX; ++i)
             {
-                return true;
+                for (int j = 0; j < sizeY; j++)
+                {
+                    int indexX = x + i;
+                    int indexY = y + j;
+                    indexX = indexX >= ConstValues.getTilesVertical ? ConstValues.getTilesVertical - 1 : indexX;
+                    indexY = indexY >= ConstValues.getTilesHorizontal ? ConstValues.getTilesHorizontal - 1 : indexY;
+                    indexY = indexY < 0 ? 0 : indexY;
+                    indexX = indexX < 0 ? 0 : indexX;
+                    if (map[indexX, indexY].isFlag)
+                    {
+                        return true;
+                    }
+                }
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
     }
 

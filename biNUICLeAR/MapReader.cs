@@ -64,20 +64,19 @@ namespace biNUICLeAR
                     for(int a = 0; a < levelData[i,j,2];a++)
                     {
                         BasicType t = (BasicType)levelData[i, j, 0];
-                        for(int x = 0; x < 4 ; x++)
+                        for(int x = 0; x < 8 ; x++)
                         {
-                            for(int y = 0; y < 4; y++)
+                            for(int y = 0; y < 8; y++)
                             {
                                 if(t == BasicType.Block)
-                                    mapData[i*4 + x, index*4+y].isBlock = true;
+                                    mapData[i*8 + x, index*8+y].isBlock = true;
                                 else if (t == BasicType.Road)
-                                    mapData[i*4 + x, index*4+y].isBlock = false;
+                                    mapData[i*8 + x, index*8+y].isBlock = false;
                             }
                         }
                         textureTypeMap[i, index] = (TileType)levelData[i, j, 1];
                         index++; ;
                     }
-                    
                 }
             }
             return true;

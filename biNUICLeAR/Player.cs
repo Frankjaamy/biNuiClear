@@ -143,7 +143,9 @@ namespace GameActor
 
             actorType = ActorType.typeSoldier; 
             Health = 100;
-            speed = 8.0f;
+            speed = 4.0f;
+            sizeX = 2;
+            sizeY = 2;
             animator = new Animator(PlayerTexture, 4, 12);
 
             pathFinder = new PathFinder();
@@ -179,7 +181,7 @@ namespace GameActor
         }
         public void recalculatePath(Tiles[,] map, Vector2 endPoint)
         {
-            pathFinder.PathFinding(map, (int)Position.X/ConstValues.getTileSize, (int)Position.Y/ConstValues.getTileSize, (int)endPoint.X, (int)endPoint.Y);
+            pathFinder.PathFinding(map, (int)Position.X/ConstValues.getTileSize, (int)Position.Y/ConstValues.getTileSize, (int)endPoint.X, (int)endPoint.Y,sizeX,sizeY);
         }
         public bool endofpath()
         {
