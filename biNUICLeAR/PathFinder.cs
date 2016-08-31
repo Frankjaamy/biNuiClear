@@ -129,8 +129,8 @@ namespace biNUICLeAR
                 {1,0},
                 //{-1,1},
                 //{-1,-1},
-                {1,1},
-                {1,-1}
+                //{1,1},
+                //{1,-1}
             };
 
             PathNode pStart = new PathNode();
@@ -150,7 +150,7 @@ namespace biNUICLeAR
                     closeList.Add(pCurrent);
                     openList.Remove(pCurrent);
 
-                    for(int i = 0; i < 5; i++)
+                    for(int i = 0; i < 3; i++)
                     {
                         int x = pCurrent.x + offset[i, 0];
                         int y = pCurrent.y + offset[i,1];
@@ -221,7 +221,7 @@ namespace biNUICLeAR
 
                     if (map[indexX, indexY].isBlock)
                     {
-                        return true;
+                        //return true;
                     }
 
                 }

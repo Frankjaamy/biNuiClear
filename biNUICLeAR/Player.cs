@@ -143,7 +143,7 @@ namespace GameActor
 
             actorType = ActorType.typeSoldier; 
             Health = 100;
-            speed = 8.0f;
+            speed = 4.0f;
             animator = new Animator(PlayerTexture, 4, 12);
 
             pathFinder = new PathFinder();

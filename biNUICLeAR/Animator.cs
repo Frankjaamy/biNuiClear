@@ -87,7 +87,7 @@ namespace biNUICLeAR
             Rectangle sourceRectangle = new Rectangle(width * Column, height * Row, width, height);
             Rectangle destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
 
-            spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, Color.White);
+            spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, Color.White,0.0f,Vector2.Zero,SpriteEffects.None,1.0f);
         }
     }
 }

@@ -294,8 +294,8 @@ namespace biNUICLeAR
                 spriteBatch.Draw(p.texture, p.position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
             foreach (DrawInfo f in flags)
             {
-                spriteBatch.Draw(f.textureAdditional, f.positionAdditional, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-                spriteBatch.Draw(f.texture, f.position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+                //spriteBatch.Draw(f.textureAdditional, f.positionAdditional, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(f.texture, f.position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 1.0f);
             }
                 
             foreach (Enemy e in enemies)
@@ -484,6 +484,11 @@ namespace biNUICLeAR
                 flags.Add(flag);
 
             }
+            foreach (Soldier element in refugees)
+            {
+                element.currentPathIndex = 0;
+            }
+            return;
 
             int[,] offset =
             {
@@ -503,10 +508,7 @@ namespace biNUICLeAR
                 mapTiles[indexY, indexX].isFlag = true && (!mapTiles[indexY, indexX].IsBlock);
             }
 
-            foreach (Soldier element in refugees)
-            {
-                element.currentPathIndex = 0;
-            }
+
 
         }
     }
