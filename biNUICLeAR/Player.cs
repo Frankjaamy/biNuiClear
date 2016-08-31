@@ -143,7 +143,7 @@ namespace GameActor
 
             actorType = ActorType.typeSoldier; 
             Health = 100;
-            speed = 4.0f;
+            speed = 8.0f;
             animator = new Animator(PlayerTexture, 4, 12);
 
             pathFinder = new PathFinder();
@@ -169,8 +169,6 @@ namespace GameActor
                     Direction = DestPosition - Position;
                 }
                 
-                //Position.X = MathHelper.Clamp(Position.X, 0, viewpostWidth - Width);
-                //Position.Y = MathHelper.Clamp(Position.Y, 0, viewportHeight - Height);
             }
             else
             {

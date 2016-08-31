@@ -202,28 +202,30 @@ namespace biNUICLeAR
 
         public bool isBlock(Tiles[,] map, int y, int x)
         {
-            int[,] offset =
-            {
-                {1,0},
-                {0,1},
-                {0,-1},
-                {1,1},
-                {1,-1}
-            };
-            for(int i = 0; i < 5; ++i)
-            {
-                int indexX = x + offset[i, 0];
-                int indexY = y + offset[i, 1];
-                indexX = indexX >= ConstValues.getTilesVertical ? ConstValues.getTilesVertical - 1 : indexX;
-                indexY = indexY >= ConstValues.getTilesHorizontal ? ConstValues.getTilesHorizontal - 1 : indexY;
-                indexY = indexY < 0 ? 0 : indexY;
-
-                if (map[indexX, indexY].isBlock)
+            
+                int[,] offset =
                 {
-                    //return true;
-                }
+                    {1,0},
+                    {0,1},
+                    {0,-1},
+                    {1,1},
+                    {1,-1}
+                };
+                for(int i = 0; i < 5; ++i)
+                {
+                    int indexX = x + offset[i, 0];
+                    int indexY = y + offset[i, 1];
+                    indexX = indexX >= ConstValues.getTilesVertical ? ConstValues.getTilesVertical - 1 : indexX;
+                    indexY = indexY >= ConstValues.getTilesHorizontal ? ConstValues.getTilesHorizontal - 1 : indexY;
+                    indexY = indexY < 0 ? 0 : indexY;
 
-            }
+                    if (map[indexX, indexY].isBlock)
+                    {
+                        return true;
+                    }
+
+                }
+            
             if (map[x, y].isBlock)
             {
                 return true;
