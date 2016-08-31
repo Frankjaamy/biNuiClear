@@ -27,8 +27,8 @@ namespace biNUICLeAR
         const int MapTilesVertical = 48/4;
         const int MapTilesHorizontal = 64/4;
 
-        const int ScreenWidth = 1024;
-        const int ScreenHeight = 768;
+        const int ScreenWidth = 1920;
+        const int ScreenHeight = 1080;
 
         const int MapWidth = TileSize * TilesHorizontal;
         const int MapHeight = TileSize * TilesVertical;
@@ -136,9 +136,9 @@ namespace biNUICLeAR
             graphics.PreferredBackBufferHeight = ConstValues.getScreenHeight;
             graphics.ApplyChanges();
             enemies = new List<Enemy>();
-            for (int i = 0; i < 60; i++)
+            for (int i = 0; i < EnemyCoordinates.coords.Count(); i++)
             {
-                //enemies.Add(new Enemy());
+                enemies.Add(new Enemy());
             }
             mapTiles = new Tiles[ConstValues.getTilesVertical, ConstValues.getTilesHorizontal];
 
@@ -159,7 +159,7 @@ namespace biNUICLeAR
 
             refugees = new List<Soldier>();
 
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 5; i++)
             {
                 Soldier tempSoldier = new Soldier();
                 tempSoldier.currentPathIndex = 0;
@@ -167,6 +167,7 @@ namespace biNUICLeAR
             }
 
             camera = new Camera(GraphicsDevice.Viewport);
+            //camera.Limits = new Rectangle(0, 0, ConstValues.getMapWidth, ConstValues.getMapHeight);
 
             base.Initialize();
         }
@@ -217,15 +218,14 @@ namespace biNUICLeAR
             int index = 0;
             foreach (Enemy e in enemies)
             {
-                e.Initialize(textureSoldier, new Vector2((index+1) * ConstValues.getTileSize, (index+1) * ConstValues.getTileSize));
+                e.Initialize(textureSoldier, EnemyCoordinates.coords[index]*ConstValues.getTileSize);
                 index++;
             }
 
             int indexSoldire = 0;
             foreach (Soldier element in refugees)
             {
-                Vector2 imageStartPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y
-                       );
+                Vector2 imageStartPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y + (indexSoldire*ConstValues.getTileSize));
                 element.Initialize(textureSoldier, imageStartPosition);
                 element.recalculatePath(mapTiles, endPosition);
                 indexSoldire++;
@@ -321,8 +321,9 @@ namespace biNUICLeAR
                 foreach (Soldier element in refugees)
                 {
                     element.recalculatePath(mapTiles, endPosition);
+                    element.currentPathIndex = 0;
                 }
-           }
+            }
 
             if (currentMouseState.RightButton == ButtonState.Pressed)
             {
@@ -331,7 +332,11 @@ namespace biNUICLeAR
                 updateFlags(worldPosition.X, worldPosition.Y);
 
                 foreach (Soldier element in refugees)
+                {
                     element.recalculatePath(mapTiles, endPosition);
+                    element.currentPathIndex = 0;
+                }
+
             }
 
             if (currentKeyState.IsKeyDown(Keys.Space))
@@ -394,10 +399,6 @@ namespace biNUICLeAR
                 }
                 mapTiles[indexY, indexX].isBlock = false;
                 mapTiles[indexY, indexX].UpdateTexture(Content.Load<Texture2D>("Graphics\\tileground"));
-            }
-            foreach (Soldier element in refugees)
-            {
-                element.currentPathIndex = 0;
             }
         }
 
@@ -502,12 +503,6 @@ namespace biNUICLeAR
                 indexY += offset[i, 1];
                 mapTiles[indexY, indexX].isFlag = true && (!mapTiles[indexY, indexX].IsBlock);
             }
-
-            foreach (Soldier element in refugees)
-            {
-                element.currentPathIndex = 0;
-            }
-
         }
     }
 
