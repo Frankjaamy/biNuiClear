@@ -57,6 +57,7 @@ namespace biNUICLeAR
         Tiles[,] mapTiles;
 
         private List<Soldier> refugees;
+        private List<Enemy> enemies;
 
         MouseState currentMouseState;
         KeyboardState currentKeyState;
@@ -96,7 +97,11 @@ namespace biNUICLeAR
             graphics.PreferredBackBufferWidth = ConstValues.getScreenWidth;
             graphics.PreferredBackBufferHeight = ConstValues.getScreenHeight;
             graphics.ApplyChanges();
-
+            enemies = new List<Enemy>();
+            for (int i = 0; i < 60; i++)
+            {
+                enemies.Add(new Enemy());
+            }
             mapTiles = new Tiles[ConstValues.getTilesVertical, ConstValues.getTilesHorizontal];
             Random num = new Random();
 
@@ -136,15 +141,24 @@ namespace biNUICLeAR
             int mapPosIndex = 0;
             foreach(Tiles p in mapTiles)
             {
-                 Vector2 playerPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X + textureBlock.Width*(mapPosIndex% ConstValues.getTilesHorizontal)
-                    , GraphicsDevice.Viewport.TitleSafeArea.Y+textureBlock.Height*(mapPosIndex / ConstValues.getTilesHorizontal));
-
+                 Vector2 playerPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X + textureBlock.Width*(mapPosIndex% ConstValues.getTilesHorizontal), 
+                     GraphicsDevice.Viewport.TitleSafeArea.Y+textureBlock.Height*(mapPosIndex / ConstValues.getTilesHorizontal));
                 p.Initialize(p.isBlock ==true? textureBlock:textureGround, playerPosition);
 
                 mapPosIndex ++;
             }
+
+
             // Make texture change here
             Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\Actor");
+            //Enemy positions
+            int index = 0;
+                foreach (Enemy e in enemies)
+                {
+                    e.Initialize(textureSoldier, new Vector2(index * ConstValues.getTileSize, 0 * ConstValues.getTileSize));
+                    index++;
+                }
+
             int i = 0;
             foreach (Soldier element in refugees)
             {
@@ -154,10 +168,7 @@ namespace biNUICLeAR
                 element.recalculatePath(mapTiles, new Vector2(63, 24));
                 i++;
             }
-
-           
-            endPosition = new Vector2(ConstValues.getTilesHorizontal - 1, ConstValues.getTilesVertical / 2);
-
+         endPosition = new Vector2(ConstValues.getTilesHorizontal - 1, ConstValues.getTilesVertical / 2);
 
         }
 
@@ -183,8 +194,28 @@ namespace biNUICLeAR
             // TODO: Add your update logic here
             UpdatePlayer(gameTime);
             camera.Update(gameTime);
-            foreach (Soldier element in refugees)
-                element.Update();
+            foreach (Enemy e in enemies)
+                e.Update();
+
+            for (int i = 0; i < refugees.Count(); i++)
+            {
+                refugees[i].Update();
+                for (int j = 0; j < enemies.Count(); j++)
+                    if (enemies[j].closeToRefugee(refugees[i].Position))
+                    {
+                        refugees.RemoveAt(i);
+                        enemies.RemoveAt(j);
+                        i--;
+                        j--;
+                        if (i < 0 || j < 0)
+                            return;
+                    }
+            }
+
+            
+
+
+            
             
             base.Update(gameTime);
         }
@@ -201,7 +232,8 @@ namespace biNUICLeAR
             spriteBatch.Begin(transformMatrix: viewMatrix);
             foreach(Tiles p in mapTiles)
                 p.Draw(spriteBatch);
-
+            foreach (Enemy e in enemies)
+                e.Draw(spriteBatch);
             foreach (Soldier element in refugees)
                 element.Draw(spriteBatch);
             
@@ -243,16 +275,16 @@ namespace biNUICLeAR
 
             if(currentKeyState.IsKeyDown(Keys.Back))
             {
-                
+                restartLevel();
                 foreach (Soldier element in refugees)
                 {
                     element.currentPathIndex = 0;
                     element.Position.X = element.startPosition.X;
                     element.Position.Y = element.startPosition.Y;
                     element.recalculatePath(mapTiles, new Vector2(63, 24));
-
                     element.DestPosition = element.Position;
                 }
+
             }
             if (IsGameStart)
             {
@@ -300,6 +332,70 @@ namespace biNUICLeAR
             {
                 element.currentPathIndex = 0;
             }
+        }
+
+        private void restartLevel()
+        {
+            enemies.Clear();
+            for (int k = 0; k < 60; k++)
+            {
+                enemies.Add(new Enemy());
+            }
+            mapTiles = new Tiles[ConstValues.getTilesVertical, ConstValues.getTilesHorizontal];
+            Random num = new Random();
+
+            for (int l = 0; l < ConstValues.getTilesVertical; l++)
+            {
+                for (int j = 0; j < ConstValues.getTilesHorizontal; j++)
+                {
+                    mapTiles[l, j] = new Tiles();
+                    mapTiles[l, j].IsBlock = true;
+                }
+            }
+            refugees.Clear();
+
+            for (int m = 0; m < 10; m++)
+            {
+                Soldier tempSoldier = new Soldier();
+                tempSoldier.currentPathIndex = 0;
+                refugees.Add(tempSoldier);
+            }
+
+            // Create a new SpriteBatch, which can be used to draw textures.
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            Texture2D textureGround = Content.Load<Texture2D>("Graphics\\tileground");
+            Texture2D textureBlock = Content.Load<Texture2D>("Graphics\\tileblock");
+            int mapPosIndex = 0;
+            foreach (Tiles p in mapTiles)
+            {
+                Vector2 playerPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X + textureBlock.Width * (mapPosIndex % ConstValues.getTilesHorizontal),
+                    GraphicsDevice.Viewport.TitleSafeArea.Y + textureBlock.Height * (mapPosIndex / ConstValues.getTilesHorizontal));
+                p.Initialize(p.isBlock == true ? textureBlock : textureGround, playerPosition);
+
+                mapPosIndex++;
+            }
+
+
+            // Make texture change here
+            Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\Actor");
+            //Enemy positions
+            for (int j = 0; j < 60; j++)
+            {
+                enemies[j].Initialize(textureSoldier, new Vector2(j * ConstValues.getTileSize, 0 * ConstValues.getTileSize));
+            }
+
+
+            int i = 0;
+            foreach (Soldier element in refugees)
+            {
+                Vector2 imageStartPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X + (i * ConstValues.getTileSize), GraphicsDevice.Viewport.TitleSafeArea.Y
+                       + (ConstValues.getTilesVertical / 2) * ConstValues.getTileSize);
+                element.Initialize(textureSoldier, imageStartPosition);
+                element.recalculatePath(mapTiles, new Vector2(63, 24));
+                i++;
+            }
+            endPosition = new Vector2(ConstValues.getTilesHorizontal - 1, ConstValues.getTilesVertical / 2);
         }
 
         private void updateFlags(float posX, float posY)

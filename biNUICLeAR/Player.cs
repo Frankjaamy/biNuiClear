@@ -238,6 +238,20 @@ namespace GameActor
         {
             animator.Draw(spriteBatch, Position, direction);
         }
+
+        public bool closeToRefugee(Vector2 pos)
+        {
+            float distance = Vector2.Distance(this.Position, pos);
+            if (distance < 0)
+                distance *= -1;
+            if (distance < (ConstValues.getTileSize / 2))
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+
         public bool searchingTarget()
         {
             return true;
