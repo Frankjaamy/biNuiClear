@@ -19,13 +19,29 @@ namespace biNUICLeAR
     /// 
     public static class ConstValues
     {
-        const int TileSize = 16;
-        const int TilesVertical = 48;
-        const int TilesHorizontal = 64;
+        const int TileSize = 64;
 
-        const int ScreenWidth = TilesHorizontal * TileSize;
-        const int ScreenHeight = TilesVertical * TileSize; 
+        const int TilesXAxis = 30;
+        const int TilesYAxis = 17;
 
+        const int TilesVertical = 96;
+        const int TilesHorizontal = 128;
+
+        const int ScreenWidth = 1024;
+        const int ScreenHeight = 768;
+
+        const int MapWidth = TileSize * TilesHorizontal;
+        const int MapHeight = TileSize * TilesVertical;
+
+
+        public static int getMapWidth
+        {
+            get { return MapWidth; }
+        }
+        public static int getMapHeight
+        {
+            get { return MapHeight; }
+        }
         public static int getTileSize
         {
             get { return TileSize; }
@@ -64,7 +80,7 @@ namespace biNUICLeAR
         Camera camera;
         bool isGameStart = false;
 
-        Vector2 endPosition = new Vector2(63,23);
+        Vector2 endPosition = new Vector2(127,95);
         public bool IsGameStart
         {
             set { isGameStart = value; }
@@ -105,12 +121,20 @@ namespace biNUICLeAR
                 for(int j=0;j< ConstValues.getTilesHorizontal; j++)
                 {
                     mapTiles[i,j] = new Tiles();
-                    mapTiles[i, j].IsBlock = true;
+                    mapTiles[i,j].IsBlock = true;
+                    if(i==endPosition.Y && j == endPosition.X)
+                    {
+                        mapTiles[i, j].isBlock = false;
+                    }
+                    if (i == 0 && j == 0)
+                    {
+                        mapTiles[i, j].isBlock = false;
+                    }
                 }
             }
             refugees = new List<Soldier>();
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 1; i++)
             {
                 Soldier tempSoldier = new Soldier();
                 tempSoldier.currentPathIndex = 0;
@@ -148,17 +172,12 @@ namespace biNUICLeAR
             int i = 0;
             foreach (Soldier element in refugees)
             {
-                Vector2 imageStartPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X + (i*ConstValues.getTileSize), GraphicsDevice.Viewport.TitleSafeArea.Y
-                       + (ConstValues.getTilesVertical / 2) * ConstValues.getTileSize);
+                Vector2 imageStartPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y
+                       );
                 element.Initialize(textureSoldier, imageStartPosition);
-                element.recalculatePath(mapTiles, new Vector2(63, 24));
+                element.recalculatePath(mapTiles, endPosition);
                 i++;
             }
-
-           
-            endPosition = new Vector2(ConstValues.getTilesHorizontal - 1, ConstValues.getTilesVertical / 2);
-
-
         }
 
         /// <summary>
@@ -222,7 +241,7 @@ namespace biNUICLeAR
 
                 foreach (Soldier element in refugees)
                 {
-                    element.recalculatePath(mapTiles, new Vector2(63, 24));
+                    element.recalculatePath(mapTiles, endPosition);
                 }
            }
 
@@ -233,7 +252,7 @@ namespace biNUICLeAR
                 updateFlags(worldPosition.X, worldPosition.Y);
 
                 foreach (Soldier element in refugees)
-                    element.recalculatePath(mapTiles, new Vector2(63, 24));
+                    element.recalculatePath(mapTiles, endPosition);
             }
 
             if (currentKeyState.IsKeyDown(Keys.Space))
@@ -249,7 +268,7 @@ namespace biNUICLeAR
                     element.currentPathIndex = 0;
                     element.Position.X = element.startPosition.X;
                     element.Position.Y = element.startPosition.Y;
-                    element.recalculatePath(mapTiles, new Vector2(63, 24));
+                    element.recalculatePath(mapTiles, endPosition);
 
                     element.DestPosition = element.Position;
                 }

@@ -112,7 +112,7 @@ namespace GameActor
     class Soldier : MoveableActor
     {
         
-        public float soldierSpeed = 1.0f;
+        public float soldierSpeed = 3.0f;
         public int currentPathIndex = 0;
         PathFinder pathFinder;
 
@@ -143,6 +143,7 @@ namespace GameActor
 
             actorType = ActorType.typeSoldier; 
             Health = 100;
+            speed = 4.0f;
             animator = new Animator(PlayerTexture, 4, 12);
 
             pathFinder = new PathFinder();
@@ -157,7 +158,7 @@ namespace GameActor
         }
         public void march(int viewpostWidth, int viewportHeight)
         {
-            if ( Vector2.Distance(Position,DestPosition) <= 0.05f)
+            if ( Vector2.Distance(Position,DestPosition) <= 0.05f * ConstValues.getTileSize)
             {
                 currentPathIndex += 1;
                 if (currentPathIndex < pathFinder.getPathNodes.Count)
@@ -167,14 +168,14 @@ namespace GameActor
                     DestPosition = new Vector2(x, y);
                     Direction = DestPosition - Position;
                 }
-
-                Position.X = MathHelper.Clamp(Position.X, 0, viewpostWidth - Width);
-                Position.Y = MathHelper.Clamp(Position.Y, 0, viewportHeight - Height);
+                
+                //Position.X = MathHelper.Clamp(Position.X, 0, viewpostWidth - Width);
+                //Position.Y = MathHelper.Clamp(Position.Y, 0, viewportHeight - Height);
             }
             else
             {
-                Position.X += direction.X * soldierSpeed/ ConstValues.getTileSize;
-                Position.Y += direction.Y * soldierSpeed / ConstValues.getTileSize;
+                Position.X += direction.X * speed/ ConstValues.getTileSize;
+                Position.Y += direction.Y * speed / ConstValues.getTileSize;
             }
 
         }

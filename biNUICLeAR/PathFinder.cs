@@ -220,7 +220,7 @@ namespace biNUICLeAR
 
                 if (map[indexX, indexY].isBlock)
                 {
-                    return true;
+                    //return true;
                 }
 
             }

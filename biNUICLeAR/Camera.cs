@@ -22,7 +22,7 @@ namespace biNUICLeAR
             _viewport = viewport;
 
             Rotation = 0;
-            Zoom = 2;
+            Zoom = 1;
             Origin = new Vector2(0, viewport.Height / 2f);
             Position = Vector2.Zero;
             previousScrollValue = Mouse.GetState().ScrollWheelValue;
@@ -50,11 +50,15 @@ namespace biNUICLeAR
             KeyboardState keyboardState = Keyboard.GetState();
             mouseState = Mouse.GetState();
 
-            if (mouseState.ScrollWheelValue < previousScrollValue && Zoom > 1)
+            if (mouseState.ScrollWheelValue < previousScrollValue && Zoom > 0.01f)
             {
                 Zoom-= (float)0.25;
+                if (Zoom <= 0.01f)
+                {
+                    Zoom = 0.2f;
+                }
             }
-            else if (mouseState.ScrollWheelValue > previousScrollValue && Zoom < 5)
+            else if (mouseState.ScrollWheelValue > previousScrollValue && Zoom < 1)
             {
                 Zoom+= (float)0.25;
             }
@@ -62,16 +66,20 @@ namespace biNUICLeAR
 
             // movement
             if (keyboardState.IsKeyDown(Keys.Up))
-                Position -= new Vector2(0, 250) * deltaTime;
-
+                if(Position.Y > 0)
+                    Position -= new Vector2(0, 1000) * deltaTime;
+                    
             if (keyboardState.IsKeyDown(Keys.Down))
-                Position += new Vector2(0, 250) * deltaTime;
+                if(Position.Y <ConstValues.getMapHeight)
+                    Position += new Vector2(0, 1000) * deltaTime;
 
             if (keyboardState.IsKeyDown(Keys.Left))
-                Position -= new Vector2(250, 0) * deltaTime;
+                if (Position.X > 0)
+                    Position -= new Vector2(1000, 0) * deltaTime;
 
             if (keyboardState.IsKeyDown(Keys.Right))
-                Position += new Vector2(250, 0) * deltaTime;
+                if (Position.X < ConstValues.getMapWidth)
+                    Position += new Vector2(1000, 0) * deltaTime;
         }
 
     }
