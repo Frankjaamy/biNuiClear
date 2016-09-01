@@ -27,8 +27,8 @@ namespace biNUICLeAR
         const int TilesVertical = 12 * (512/64);
         const int TilesHorizontal = 16 * (512/64);
 
-        const int ScreenWidth = 1920;
-        const int ScreenHeight = 1080;
+        const int ScreenWidth = 1024;
+        const int ScreenHeight = 768;
 
         const int MapWidth = TileSize * TilesHorizontal;
         const int MapHeight = TileSize * TilesVertical;
@@ -102,6 +102,9 @@ namespace biNUICLeAR
 
         Camera camera;
         bool isGameStart = false;
+
+        float flagCoolDown = 1.5f;
+        bool isFlagReady = true;
 
         Vector2 endPosition = new Vector2(ConstValues.getTilesHorizontal - 1, 1);
         public bool IsGameStart
@@ -309,7 +312,7 @@ namespace biNUICLeAR
             {
                 if(p.PlayerTexture != null)
                 {
-                    spriteBatch.Draw(p.PlayerTexture, p.Position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 1.0f);
+                    //spriteBatch.Draw(p.PlayerTexture, p.Position, null, Color.Firebrick, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.0f);
                 }
             }
             foreach (Enemy e in enemies)
@@ -326,19 +329,16 @@ namespace biNUICLeAR
             currentMouseState = Mouse.GetState();
             currentKeyState = Keyboard.GetState();
 
-            /*if (currentMouseState.LeftButton == ButtonState.Pressed)
+            if (!isFlagReady)
             {
-                Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
-                Vector2 worldPosition = Vector2.Transform(mousePosition, Matrix.Invert(camera.GetViewMatrix()));
-                UpdateBlocks(worldPosition.X, worldPosition.Y);
-
-                foreach (Soldier element in refugees)
+                flagCoolDown -= gameTime.ElapsedGameTime.Milliseconds/1000.0f;
+                if (flagCoolDown <= 0)
                 {
-                    element.recalculatePath(mapTiles, endPosition);
-                    element.currentPathIndex = 0;
+                    isFlagReady = true;
+                    flagCoolDown = 1.5f;
                 }
-            }*/
-            if (currentMouseState.RightButton == ButtonState.Pressed)
+            }
+            if (currentMouseState.RightButton == ButtonState.Pressed && isFlagReady)
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
                 Vector2 worldPosition = Vector2.Transform(mousePosition, Matrix.Invert(camera.GetViewMatrix()));
@@ -349,14 +349,8 @@ namespace biNUICLeAR
                     element.recalculatePath(mapTiles, endPosition);
                     element.currentPathIndex = 0;
                 }
-
+                isFlagReady = false;
             }
-
-            if (currentKeyState.IsKeyDown(Keys.Space))
-            {
-                IsGameStart = !IsGameStart;
-            }
-
             if (currentKeyState.IsKeyDown(Keys.Back))
             {
                 restartLevel();
@@ -366,10 +360,13 @@ namespace biNUICLeAR
                     element.Position.X = element.startPosition.X;
                     element.Position.Y = element.startPosition.Y;
                     element.recalculatePath(mapTiles, endPosition);
-
                     element.DestPosition = element.Position;
                 }
 
+            }
+            if (currentKeyState.IsKeyDown(Keys.Space))
+            {
+                IsGameStart = !IsGameStart;
             }
             if (IsGameStart)
             {

@@ -23,7 +23,7 @@ namespace biNUICLeAR
             _viewport = viewport;
 
             Rotation = 0;
-            Zoom = 0.2f;
+            Zoom = 0.6f;
             Origin = new Vector2(0, viewport.Height / 2f);
             Position = Vector2.Zero;
             previousScrollValue = Mouse.GetState().ScrollWheelValue;
