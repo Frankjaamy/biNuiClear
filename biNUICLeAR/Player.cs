@@ -146,7 +146,7 @@ namespace GameActor
             speed = 4.0f;
             sizeX = 2;
             sizeY = 2;
-            animator = new Animator(PlayerTexture, 4, 12);
+            animator = new Animator(PlayerTexture, 8, 3);
 
             pathFinder = new PathFinder();
             pathFinder.initialize();
@@ -226,7 +226,7 @@ namespace GameActor
             this.Position = position;
             DestPosition = position;
             actorType = ActorType.typeSoldier;
-            animator = new Animator(PlayerTexture, 4, 12);
+            animator = new Animator(PlayerTexture, 8, 3);
 
             isHuntingMode = isDead = isSearchingMode = false;
             searchingRadius = 2;
@@ -245,7 +245,7 @@ namespace GameActor
             float distance = Vector2.Distance(this.Position, pos);
             if (distance < 0)
                 distance *= -1;
-            if (distance < (ConstValues.getTileSize / 2))
+            if (distance < (ConstValues.getTileSize*2))
             {
                 return true;
             }

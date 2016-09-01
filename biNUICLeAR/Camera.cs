@@ -23,7 +23,7 @@ namespace biNUICLeAR
             _viewport = viewport;
 
             Rotation = 0;
-            Zoom = 1;
+            Zoom = 0.2f;
             Origin = new Vector2(0, viewport.Height / 2f);
             Position = Vector2.Zero;
             previousScrollValue = Mouse.GetState().ScrollWheelValue;
@@ -118,17 +118,17 @@ namespace biNUICLeAR
 
         private void ValidateZoom()
         {
-           /* if (limits.HasValue)
+            if (limits.HasValue)
             {
                 float minZoomX = (float)_viewport.Width / limits.Value.Width;
                 float minZoomY = (float)_viewport.Height / limits.Value.Height;
                 zoom = MathHelper.Max(zoom, MathHelper.Max(minZoomX, minZoomY));
-            }*/
+            }
         }
 
         private void ValidatePosition()
         {
-            /*if (limits.HasValue)
+            if (limits.HasValue)
             {
                 Vector2 cameraWorldMin = Vector2.Transform(Vector2.Zero, Matrix.Invert(GetViewMatrix()));
                 Vector2 cameraSize = new Vector2(_viewport.Width, _viewport.Height) / zoom;
@@ -136,7 +136,7 @@ namespace biNUICLeAR
                 Vector2 limitWorldMax = new Vector2(limits.Value.Right, limits.Value.Bottom);
                 Vector2 positionOffset = position - cameraWorldMin;
                 position = Vector2.Clamp(cameraWorldMin, limitWorldMin, limitWorldMax - cameraSize) + positionOffset;
-            }*/
+            }
         }
     }
 }

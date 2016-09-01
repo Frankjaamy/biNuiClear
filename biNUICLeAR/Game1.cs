@@ -160,7 +160,7 @@ namespace biNUICLeAR
 
             refugees = new List<Soldier>();
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 10; i++)
             {
                 Soldier tempSoldier = new Soldier();
                 tempSoldier.currentPathIndex = 0;
@@ -168,7 +168,7 @@ namespace biNUICLeAR
             }
 
             camera = new Camera(GraphicsDevice.Viewport);
-            //camera.Limits = new Rectangle(0, 0, ConstValues.getMapWidth, ConstValues.getMapHeight);
+            camera.Limits = new Rectangle(0, 0, ConstValues.getMapWidth, ConstValues.getMapHeight);
 
             base.Initialize();
         }
@@ -214,12 +214,13 @@ namespace biNUICLeAR
             }
 
             // Make texture change here
-            Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\Actor");
+            Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\charactersprite");
+            Texture2D textureEnemy = Content.Load<Texture2D>("Graphics\\enemysprite");
             //Enemy positions
             int index = 0;
             foreach (Enemy e in enemies)
             {
-                e.Initialize(textureSoldier, EnemyCoordinates.coords[index]*ConstValues.getTileSize);
+                e.Initialize(textureEnemy, EnemyCoordinates.coords[index]*ConstValues.getTileSize*2);
 
                 index++;
             }
@@ -227,7 +228,16 @@ namespace biNUICLeAR
             int indexSoldire = 0;
             foreach (Soldier element in refugees)
             {
-                Vector2 imageStartPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y + (indexSoldire*ConstValues.getTileSize));
+                Vector2 imageStartPosition;
+                if (indexSoldire < refugees.Count() / 2)
+                {
+                    imageStartPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y + (indexSoldire * ConstValues.getTileSize * 2));
+                }
+                else
+                {
+                    imageStartPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X + ((indexSoldire-(refugees.Count()/2)) * ConstValues.getTileSize * 2), (ConstValues.getMapHeight-(3*ConstValues.getTileSize)));
+                }
+
                 element.Initialize(textureSoldier, imageStartPosition);
                 element.recalculatePath(mapTiles, endPosition);
                 indexSoldire++;
@@ -275,10 +285,6 @@ namespace biNUICLeAR
             }
 
 
-
-
-
-
             base.Update(gameTime);
         }
 
@@ -320,7 +326,7 @@ namespace biNUICLeAR
             currentMouseState = Mouse.GetState();
             currentKeyState = Keyboard.GetState();
 
-            if (currentMouseState.LeftButton == ButtonState.Pressed)
+            /*if (currentMouseState.LeftButton == ButtonState.Pressed)
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
                 Vector2 worldPosition = Vector2.Transform(mousePosition, Matrix.Invert(camera.GetViewMatrix()));
@@ -331,7 +337,7 @@ namespace biNUICLeAR
                     element.recalculatePath(mapTiles, endPosition);
                     element.currentPathIndex = 0;
                 }
-            }
+            }*/
             if (currentMouseState.RightButton == ButtonState.Pressed)
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);

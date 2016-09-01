@@ -18,9 +18,10 @@ namespace biNUICLeAR
         public int Row { get; set; }
         public int Column { get; set; }
         private int currentFrame = 0;
-        private int totalFrames = 6;
+        private int totalFrames = 3;
         private int width;
         private int height;
+        private bool animationDirUp = true;
 
         private int frameCounter;
 
@@ -38,11 +39,29 @@ namespace biNUICLeAR
             frameCounter++;
             if (frameCounter > 12)
             {
-                currentFrame++;
+                if (animationDirUp)
+                {
+                    currentFrame++;
+                }
+                else
+                {
+                    currentFrame--;
+                }
+
                 if (currentFrame == totalFrames)
                 {
-                    currentFrame = 0;
+                    if (animationDirUp == true)
+                    {
+                        animationDirUp = false;
+                        totalFrames = 0;
+                    }
+                    else
+                    {
+                        animationDirUp = true;
+                        totalFrames = 2;
+                    }
                 }
+
                 frameCounter = 0;
             }
         }
@@ -50,11 +69,10 @@ namespace biNUICLeAR
         public void Draw(SpriteBatch spriteBatch, Vector2 location, Vector2 direction)
         {
             //Change all for new charactersheet
-
+            Column = 0;
             //Up and down texture pos
             if (direction.X == 0)
             {
-                Column = 0;
                 if (direction.Y < 0)
                     Row = 3;
                 else if (direction.Y > 0)
@@ -67,20 +85,32 @@ namespace biNUICLeAR
             {
                 if (direction.Y == 0)
                 {
-                    Column = 0;
-                    Row = 2;
+                    Row = 6;
                 }
                 else if (direction.Y < 0)
                 {
-                    Column = 6;
-                    Row = 3;
+                    Row = 5;
                 }
                 else if (direction.Y > 0)
                 {
-                    Column = 6;
-                    Row = 0;
+                    Row = 1;
                 }
 
+            }
+            else if (direction.X < 0)
+            {
+                if (direction.Y == 0)
+                {
+                    Row = 7;
+                }
+                else if (direction.Y < 0)
+                {
+                    Row = 4;
+                }
+                else if (direction.Y > 0)
+                {
+                    Row = 2;
+                }
             }
 
             Column += currentFrame;
