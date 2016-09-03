@@ -97,23 +97,6 @@ namespace biNUICLeAR
                 Zoom += (float)0.25;
             }
             previousScrollValue = mouseState.ScrollWheelValue;
-
-            // movement
-            if (keyboardState.IsKeyDown(Keys.Up))
-                if(Position.Y > 0)
-                    Position -= new Vector2(0, 1000) * deltaTime;
-                    
-            if (keyboardState.IsKeyDown(Keys.Down))
-                if(Position.Y <ConstValues.getMapHeight)
-                    Position += new Vector2(0, 1000) * deltaTime;
-
-            if (keyboardState.IsKeyDown(Keys.Left))
-                if (Position.X > 0)
-                    Position -= new Vector2(1000, 0) * deltaTime;
-
-            if (keyboardState.IsKeyDown(Keys.Right))
-                if (Position.X < ConstValues.getMapWidth)
-                    Position += new Vector2(1000, 0) * deltaTime;
         }
 
         private void ValidateZoom()

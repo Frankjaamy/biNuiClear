@@ -53,13 +53,28 @@ namespace GameActor
     class Tiles: BasicActor
     {
         public bool Active;
-        public bool isBlock;
-        public bool isFlag;
 
+        public bool isBlock;
+
+        public bool isMined;
+        public bool isSafe;
+        public bool isFlag;
+        public bool isRevealed;
+        public bool isSearched;
+        public bool isTemporaryRevealed;
+        public SpriteFont numberMines;
+        public int mineCount = 0;
+
+        public Texture2D TextureMask;
         public Tiles()
         {
             isBlock = false;
             isFlag = false;
+            isMined = false;
+            isSafe = false;
+            isRevealed = false;
+            isTemporaryRevealed = false;
+            isSearched = false;
         }
         public override void Initialize(Texture2D texture, Vector2 position)
         {
@@ -68,9 +83,12 @@ namespace GameActor
             Position = position;
 
             Active = true;
-
         }
 
+        public void initFont(SpriteFont f)
+        {
+            numberMines = f;
+        }
         public void UpdateTexture(Texture2D texture)
         {
             PlayerTexture = texture;
@@ -112,10 +130,10 @@ namespace GameActor
     class Soldier : MoveableActor
     {
         
-        public float soldierSpeed = 3.0f;
         public int currentPathIndex = 0;
         PathFinder pathFinder;
 
+        public int detectRadius = 3;
 
         public Vector2 Direction
         {
@@ -143,9 +161,9 @@ namespace GameActor
 
             actorType = ActorType.typeSoldier; 
             Health = 100;
-            speed = 4.0f;
-            sizeX = 2;
-            sizeY = 2;
+            speed = 0.50f;
+            sizeX = 1;
+            sizeY = 1;
             animator = new Animator(PlayerTexture, 8, 3);
 
             pathFinder = new PathFinder();
@@ -155,10 +173,9 @@ namespace GameActor
         public override void Draw(SpriteBatch spriteBatch)
         {
             //Now using Animator instead
-            //spriteBatch.Draw(PlayerTexture, Position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
             animator.Draw(spriteBatch, Position, direction);
         }
-        public void march(int viewpostWidth, int viewportHeight)
+        public void march(int viewpostWidth, int viewportHeight, ref MapScene map)
         {
             if ( Vector2.Distance(Position,DestPosition) <= 0.05f * ConstValues.getTileSize)
             {
@@ -177,10 +194,26 @@ namespace GameActor
                 Position.X += direction.X * speed/ ConstValues.getTileSize;
                 Position.Y += direction.Y * speed / ConstValues.getTileSize;
             }
-
+            /*
+            map.quickResetMapDetection();
+            int indexY = (int)Position.Y / ConstValues.getTileSize;
+            int indexX = (int)Position.X / ConstValues.getTileSize;
+            for (int i = indexX - detectRadius; i< indexX + sizeX + detectRadius; i++)
+            {
+                for (int j = indexY - detectRadius; j < indexY + sizeY + detectRadius; j++)
+                {
+                    if(i < 0 || j<0 || i>ConstValues.getTilesHorizontal || j > ConstValues.getTilesVertical)
+                    {
+                        continue;
+                    }
+                    map.RevealBlock(i,j,false);
+                }                
+            }
+            */
         }
         public void recalculatePath(Tiles[,] map, Vector2 endPoint)
         {
+            currentPathIndex = 0;
             pathFinder.PathFinding(map, (int)Position.X/ConstValues.getTileSize, (int)Position.Y/ConstValues.getTileSize, (int)endPoint.X, (int)endPoint.Y,sizeX,sizeY);
         }
         public bool endofpath()

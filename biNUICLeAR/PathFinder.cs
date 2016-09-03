@@ -118,14 +118,14 @@ namespace biNUICLeAR
 
             this.endNode.x = endX;
             this.endNode.y = endY;
-            if (isBlock(map, endX, endY,sizeX,sizeY))
+            if (isUnRevealed(map, endX, endY,sizeX,sizeY))
             {
                 return false;
             }
             int [,] offset = { 
                 {0,1},
                 {0,-1},
-                //{-1,0},
+                {-1,0},
                 {1,0},
                 {-1,1},
                 {-1,-1},
@@ -150,7 +150,7 @@ namespace biNUICLeAR
                     closeList.Add(pCurrent);
                     openList.Remove(pCurrent);
 
-                    for(int i = 0; i < 7; i++)
+                    for(int i = 0; i < 8; i++)
                     {
                         int x = pCurrent.x + offset[i, 0];
                         int y = pCurrent.y + offset[i,1];
@@ -160,7 +160,7 @@ namespace biNUICLeAR
                         }
                         else
                         {
-                            if(!checkNodeInList(x,y,openList) && !checkNodeInList(x, y, closeList) && !isBlock(map, x, y,sizeX,sizeY) && ((!isFlag(map,x,y,sizeX,sizeY))||allowGoThroughDanger))
+                            if(!checkNodeInList(x,y,openList) && !checkNodeInList(x, y, closeList) && !isUnRevealed(map, x, y,sizeX,sizeY) && ((!isMined(map,x,y,sizeX,sizeY))||allowGoThroughDanger))
                             {
                                 PathNode chosenNode = new PathNode();
                                 initNode(chosenNode, pCurrent, x, y, endX, endY);
@@ -200,9 +200,16 @@ namespace biNUICLeAR
             }
         }
 
-        public bool isBlock(Tiles[,] map, int y, int x, int sizeY =1, int sizeX =1)
+        public bool isUnRevealed(Tiles[,] map, int y, int x, int sizeY =1, int sizeX =1)
         {
-
+            if(x < 0 || y < 0)
+            {
+                return true;
+            }
+            if(x + sizeX >ConstValues.getTilesVertical || y + sizeY > ConstValues.getTilesHorizontal)
+            {
+                return true;
+            }
             for (int i = 0; i < sizeX; ++i)
             {
                 for(int j = 0; j < sizeY; j++)
@@ -213,7 +220,7 @@ namespace biNUICLeAR
                     indexY = indexY >= ConstValues.getTilesHorizontal ? ConstValues.getTilesHorizontal - 1 : indexY;
                     indexY = indexY < 0 ? 0 : indexY;
                     indexX = indexX < 0 ? 0 : indexX;
-                    if (map[indexX, indexY].isBlock)
+                    if (!map[indexX, indexY].isRevealed)
                     {
                         return true;
                     }
@@ -222,7 +229,7 @@ namespace biNUICLeAR
             return false;  
         }
 
-        public bool isFlag(Tiles[,] map,int y, int x, int sizeY = 1, int sizeX = 1)
+        public bool isMined(Tiles[,] map,int y, int x, int sizeY = 1, int sizeX = 1)
         {
             for (int i = 0; i < sizeX; ++i)
             {
@@ -234,7 +241,7 @@ namespace biNUICLeAR
                     indexY = indexY >= ConstValues.getTilesHorizontal ? ConstValues.getTilesHorizontal - 1 : indexY;
                     indexY = indexY < 0 ? 0 : indexY;
                     indexX = indexX < 0 ? 0 : indexX;
-                    if (map[indexX, indexY].isFlag)
+                    if (map[indexX, indexY].isMined && map[indexX,indexY].isRevealed)
                     {
                         return true;
                     }

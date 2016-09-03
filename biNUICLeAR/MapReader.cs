@@ -4,78 +4,201 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
-
+using Microsoft.Xna.Framework;
 using GameActor;
+
 namespace biNUICLeAR
 {
-    public enum BasicType
+    class MapScene
     {
-        Block,
-        Road
-    };
+        public Tiles[,] mapTiles;
+        int[,] offset ={
+                {-1,-1},
+                {0,-1},
+                {1,-1},
+                {-1,1},
+                {0,1},
+                {1,1},
+                {-1,0},
+                {1,0}
+            };
+        public Tiles[,] GetMap
+        {
+            get { return mapTiles; }
+        }
 
-    public enum TileType
-    {
-        RoadRegular = 1 ,
-        RoadRight,
-        RoadLeftRight,
-        RoadBottomLeft,
-        RoadTop,
-        RoadDown,
-        RoadTopDown,
-        RoadBottomRight,
-        Grass,
-        RoadTopLeft
-    }
-    class MapReader
-    {
-        public int[,,] MapLevelOne = {
-            { {1,3,1}, {0,9,14},{1,1,1},  {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-            { {1,3,1}, {0,9,5}, {1,10,1}, {1,7,6}, {1,5,1}, {1,7,1}, {1,1,1}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-            { {1,3,1}, {0,9,5}, {1,3,1},  {0,9,6}, {1,3,1}, {0,9,1}, {1,3,1}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-            { {1,3,1}, {0,9,5}, {1,3,1},  {0,9,3}, {1,10,1},{1,7,2}, {1,2,1}, {0,9,1}, {1,3,1}, {0,0,0}, {0,0,0}},
-            { {1,4,1}, {1,7,2}, {1,5,1},  {1,7,2}, {1,2,1}, {0,9,3}, {1,3,1}, {0,9,2}, {1,1,1}, {1,7,1}, {1,8,1}},
-            { {0,9,3}, {1,3,1}, {0,9,2},  {1,1,1}, {1,7,3}, {1,8,1}, {0,9,2}, {1,3,1}, {0,9,2}, {0,0,0}, {0,0,0}},
-            { {0,9,3}, {1,3,1}, {0,9,2},  {1,3,1}, {0,9,6}, {1,3,1}, {0,9,2}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-            { {0,9,3}, {1,3,1}, {0,9,2},  {1,3,1}, {0,9,6}, {1,3,1}, {0,9,2}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-            { {0,9,3}, {1,3,1}, {0,9,2},  {1,1,1}, {1,7,6}, {1,8,1}, {0,9,2}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-            { {0,9,3}, {1,3,1}, {0,9,2},  {1,3,1}, {0,9,9}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-            { {0,9,3}, {1,3,1}, {0,9,2},  {1,3,1}, {0,9,9}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-            { {1,7,3}, {1,6,1}, {1,7,2},  {1,8,1}, {0,9,9}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-        };
-
-        public void drawMapTile(int BasicType, TileType tileType)
+        public void drawMapTile()
         {
 
         }
-        public bool initMap(int[,,] levelData,Tiles[,] mapData, TileType[,] textureTypeMap)
+        public bool initMap(Texture2D textGround, Texture2D mined, Texture2D mask, SpriteFont f = null)
         {
-            if(mapData.GetLength(0) == 0 || mapData.GetLength(1) == 0)
+            mapTiles = new Tiles[ConstValues.getTilesVertical, ConstValues.getTilesHorizontal];
+
+            for (int i = 0; i < ConstValues.getTilesVertical; i++)
+            {
+                for (int j = 0; j < ConstValues.getTilesHorizontal; j++)
+                {
+                    mapTiles[i, j] = new Tiles();
+                    mapTiles[i, j].Position = new Vector2(j * ConstValues.getTileSize, i * ConstValues.getTileSize);
+                    mapTiles[i, j].PlayerTexture = textGround;
+                    mapTiles[i, j].TextureMask = mask;
+                    mapTiles[i, j].initFont(f);
+                }
+            }
+            Random rm = new Random();
+            for (int i = 0; i < 500; i++)
+            {
+                int indexX = rm.Next(1, ConstValues.getTilesVertical);
+                int indexY = rm.Next(1, ConstValues.getTilesHorizontal);
+
+                mapTiles[indexX, indexY].isMined = true;
+                mapTiles[indexX, indexY].PlayerTexture = mined;
+            }
+            return true;
+        }
+
+        public void drawMap(SpriteBatch spriteBatch)
+        {
+            foreach (Tiles p in mapTiles)
+            {
+                if (!p.isTemporaryRevealed && !p.isRevealed)
+                {
+                    spriteBatch.Draw(p.TextureMask, p.Position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.0f);
+                }
+                else
+                {
+                    if (p.PlayerTexture != null)
+                    {
+                        spriteBatch.Draw(p.PlayerTexture, p.Position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.0f);
+                    }
+                    if (!p.isSafe)
+                    {
+                        if (!p.isMined)
+                        {
+                            spriteBatch.DrawString(p.numberMines, p.mineCount.ToString(), p.Position, Color.Black);
+                        }
+                    }
+                }
+            }
+        }
+        public void modifyValues(ref int x, ref int y)
+        {
+            x = x < 0 ? 0 : x;
+            y = y < 0 ? 0 : y;
+            x = x > (ConstValues.getTilesVertical - 1) ? (ConstValues.getTilesVertical - 1) : x;
+            y = y > (ConstValues.getTilesHorizontal - 1) ? (ConstValues.getTilesHorizontal - 1) : y;
+        }
+        public void updateMap()
+        {
+            for (int i = 0; i < ConstValues.getTilesVertical; i++)
+            {
+                for (int j = 0; j < ConstValues.getTilesHorizontal; j++)
+                {
+                    if (mapTiles[i, j].isMined)
+                    {
+                        continue;
+                    }
+                    for (int k = 0; k < 8; ++k)
+                    {
+                        int x = i + offset[k, 0];
+                        int y = j + offset[k, 1];
+                        modifyValues(ref x, ref y);
+                        if (mapTiles[x, y].isMined)
+                        {
+                            mapTiles[i, j].mineCount++;
+                        }
+                    }
+                    if (mapTiles[i, j].mineCount == 0)
+                    {
+                        mapTiles[i, j].isSafe = true;
+                    }
+                }
+            }
+
+        }
+
+        public void quickResetMapDetection()
+        {
+            foreach (Tiles t in mapTiles)
+            {
+                t.isTemporaryRevealed = false;
+            }
+        }
+        public bool RevealBlock(int x, int y, bool furtherReveal = true)
+        {
+            if (x < 0 || y < 0 || y > ConstValues.getTilesVertical - 1 || x > ConstValues.getTilesHorizontal - 1)
             {
                 return false;
             }
-
-            for(int i = 0; i < levelData.GetLength(0); i++)
+            if (mapTiles[y, x].isSearched)
             {
-                int index = 0;
-                for (int j = 0; j < levelData.GetLength(1);j++)
+                return false;
+            }
+            if (!furtherReveal)
+            {
+
+                mapTiles[y, x].isTemporaryRevealed = true;
+                return true;
+            }
+            mapTiles[y, x].isRevealed = true;
+            mapTiles[y, x].isSearched = true;
+            if (mapTiles[y, x].isSafe)
+            {
+                for (int i = 0; i < 8; i++)
                 {
-                    
-                    for(int a = 0; a < levelData[i,j,2];a++)
+                    int tempX = x + offset[i, 0];
+                    int tempY = y + offset[i, 1];
+                    RevealBlock(tempX, tempY);
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public bool PlaceFlag(int x, int y)
+        {
+            if (x < 0 || y < 0 || y > ConstValues.getTilesVertical - 1 || x > ConstValues.getTilesHorizontal - 1)
+            {
+                return false;
+            }
+            mapTiles[y, x].isFlag = !mapTiles[y,x].isFlag;
+            return mapTiles[y, x].isFlag;
+        }
+
+        public bool DetectBlocks(int x, int y)
+        {
+            if (x < 0 || y < 0 || y > ConstValues.getTilesVertical - 1 || x > ConstValues.getTilesHorizontal - 1)
+            {
+                return false;
+            }
+            if (!mapTiles[y, x].isSafe && mapTiles[y, x].isRevealed)
+            {
+                int flagsCount = 0;
+                for (int k = 0; k < 8; ++k)
+                {
+                    int indexX = x + offset[k, 0];
+                    int indexY = y + offset[k, 1];
+                    modifyValues(ref indexX, ref indexY);
+                    if (mapTiles[indexY, indexX].isFlag)
                     {
-                        BasicType t = (BasicType)levelData[i, j, 0];
-                        for(int x = 0; x < 8 ; x++)
+                        flagsCount++;
+                    }
+                }
+                if(flagsCount == mapTiles[y, x].mineCount)
+                {
+                    for (int k = 0; k < 8; ++k)
+                    {
+                        int indexX = x + offset[k, 0];
+                        int indexY = y + offset[k, 1];
+                        modifyValues(ref indexX, ref indexY);
+                        if (!mapTiles[indexY,indexX].isFlag)
                         {
-                            for(int y = 0; y < 8; y++)
-                            {
-                                if(t == BasicType.Block)
-                                    mapData[i*8 + x, index*8+y].isBlock = true;
-                                else if (t == BasicType.Road)
-                                    mapData[i*8 + x, index*8+y].isBlock = false;
-                            }
-                        }
-                        textureTypeMap[i, index] = (TileType)levelData[i, j, 1];
-                        index++; ;
+                            mapTiles[indexY, indexX].isRevealed = true;
+                        }  
                     }
                 }
             }
