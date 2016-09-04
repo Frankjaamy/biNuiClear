@@ -194,22 +194,24 @@ namespace GameActor
                 Position.X += direction.X * speed/ ConstValues.getTileSize;
                 Position.Y += direction.Y * speed / ConstValues.getTileSize;
             }
-            /*
+
+#if  false
             map.quickResetMapDetection();
             int indexY = (int)Position.Y / ConstValues.getTileSize;
             int indexX = (int)Position.X / ConstValues.getTileSize;
-            for (int i = indexX - detectRadius; i< indexX + sizeX + detectRadius; i++)
+            for (int i = indexX - detectRadius; i < indexX + sizeX + detectRadius; i++)
             {
                 for (int j = indexY - detectRadius; j < indexY + sizeY + detectRadius; j++)
                 {
-                    if(i < 0 || j<0 || i>ConstValues.getTilesHorizontal || j > ConstValues.getTilesVertical)
+                    if (i < 0 || j < 0 || i > ConstValues.getTilesHorizontal || j > ConstValues.getTilesVertical)
                     {
                         continue;
                     }
-                    map.RevealBlock(i,j,false);
-                }                
-            }
-            */
+                    map.RevealBlock(i, j, false);
+                }
+            } 
+#endif
+
         }
         public void recalculatePath(Tiles[,] map, Vector2 endPoint)
         {
