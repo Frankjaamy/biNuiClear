@@ -24,14 +24,17 @@ namespace biNUICLeAR
         private bool animationDirUp = true;
 
         private int frameCounter;
+        private int numberOfFrames;
 
         public Animator(Texture2D texture, int row, int column)
         {
             Texture = texture;
             Row = row;
             Column = column;
+            numberOfFrames = column;
             width = Texture.Width / Column;
             height = Texture.Height / Row;
+            totalFrames = column-1;
         }
 
         public void Update()
@@ -50,7 +53,7 @@ namespace biNUICLeAR
 
                 if (currentFrame == totalFrames)
                 {
-                    if (animationDirUp == true)
+                     if (animationDirUp == true)
                     {
                         animationDirUp = false;
                         totalFrames = 0;
@@ -58,7 +61,7 @@ namespace biNUICLeAR
                     else
                     {
                         animationDirUp = true;
-                        totalFrames = 2;
+                         totalFrames = numberOfFrames-1;
                     }
                 }
 
@@ -70,8 +73,9 @@ namespace biNUICLeAR
         {
             //Change all for new charactersheet
             Column = 0;
+            Row = 0;
             //Up and down texture pos
-            if (direction.X == 0)
+            /*if (direction.X == 0)
             {
                 if (direction.Y < 0)
                     Row = 3;
@@ -111,7 +115,7 @@ namespace biNUICLeAR
                 {
                     Row = 2;
                 }
-            }
+            }*/
 
             Column += currentFrame;
             Rectangle sourceRectangle = new Rectangle(width * Column, height * Row, width, height);

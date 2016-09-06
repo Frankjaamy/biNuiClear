@@ -84,7 +84,6 @@ namespace biNUICLeAR
         String endOutPut;
         SpriteFont gameInfo;
 
-        float timeIntervals = 50.0f;
         bool isGameStart = false;
         bool isGameFinish = false;
 
@@ -146,12 +145,12 @@ namespace biNUICLeAR
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            Texture2D textureGround = Content.Load<Texture2D>("Graphics\\tileground");
-            Texture2D textureBlock = Content.Load<Texture2D>("Graphics\\tileblock");
+            Texture2D textureGround = Content.Load<Texture2D>("Graphics\\Ground");
+            Texture2D textureBlock = Content.Load<Texture2D>("Graphics\\baseBrick");
             Texture2D textureMine = Content.Load<Texture2D>("Graphics\\werewolf");
 
             // Make texture change here
-            Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\charactersprite");
+            Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\character");
             
 
             SpriteFont sf = Content.Load<SpriteFont>("Information");
@@ -264,7 +263,7 @@ Time Used:{1,3:00}:{2,3:000}:{3,3:000}"
             {
                 secondsBetweenPressureSpawn = 0;
                 Enemy temp = new Enemy();
-                Texture2D textureEnemy = Content.Load<Texture2D>("Graphics\\charactersprite");
+                Texture2D textureEnemy = Content.Load<Texture2D>("Graphics\\backupEnemy");
                 temp.Initialize(textureEnemy, new Vector2(0, 0));
                 enemies.Add(temp);
             }
@@ -304,18 +303,21 @@ Time Used:{1,3:00}:{2,3:000}:{3,3:000}"
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
                 mReader.RevealBlock((int)mousePosition.X/ConstValues.getTileSize, (int)mousePosition.Y/ConstValues.getTileSize);
-                if (((int)mousePosition.X / ConstValues.getTileSize) <= ConstValues.getTilesHorizontal && ((int)mousePosition.Y / ConstValues.getTileSize) <= ConstValues.getTilesVertical && ((int)mousePosition.X / ConstValues.getTileSize) > 0 && ((int)mousePosition.Y / ConstValues.getTileSize) > 0)
+                if ((((int)mousePosition.X / ConstValues.getTileSize) <= ConstValues.getTilesHorizontal) && (((int)mousePosition.Y / ConstValues.getTileSize) <= ConstValues.getTilesVertical) && (((int)mousePosition.X / ConstValues.getTileSize) > 0) && (((int)mousePosition.Y / ConstValues.getTileSize) > 0))
+                {
                     if (mReader.mapTiles[(int)mousePosition.Y / ConstValues.getTileSize, (int)mousePosition.X / ConstValues.getTileSize].isMined && mReader.mapTiles[(int)mousePosition.Y / ConstValues.getTileSize, (int)mousePosition.X / ConstValues.getTileSize].isRevealed)
                     {
-                        for (int i = 0; i <=5; i++)
+                        for (int i = 0; i <= 5; i++)
                         {
                             Enemy temp = new Enemy();
-                            Texture2D textureEnemy = Content.Load<Texture2D>("Graphics\\charactersprite");
+                            Texture2D textureEnemy = Content.Load<Texture2D>("Graphics\\backupEnemy");
                             temp.Initialize(textureEnemy, mReader.mapTiles[(int)mousePosition.Y / ConstValues.getTileSize, (int)mousePosition.X / ConstValues.getTileSize].Position);
                             enemies.Add(temp);
                         }
 
                     }
+                }
+
             }
             else if(currentMouseState.MiddleButton == ButtonState.Pressed)
             {

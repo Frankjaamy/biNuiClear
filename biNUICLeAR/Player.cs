@@ -165,7 +165,7 @@ namespace GameActor
             speed = 0.50f;
             sizeX = 1;
             sizeY = 1;
-            animator = new Animator(PlayerTexture, 8, 3);
+            animator = new Animator(PlayerTexture, 1, 4);
 
             pathFinder = new PathFinder();
             pathFinder.initialize();
@@ -265,7 +265,7 @@ namespace GameActor
             this.Position = position;
             DestPosition = position;
             actorType = ActorType.typeEnemyWander;
-            animator = new Animator(PlayerTexture, 8, 3);
+            animator = new Animator(PlayerTexture, 1, 3);
             Health = 100;
             speed = 0.50f;
             sizeX = 1;
