@@ -21,8 +21,8 @@ namespace biNUICLeAR
     {
         const int TileSize = 16;
         const int StartPressureTimeSeconds = 1 * 60;//60 sec
-        const int TilesVertical = 48;
-        const int TilesHorizontal = 64;
+        const int TilesVertical = 16;
+        const int TilesHorizontal = 16;
 
         const int ScreenWidth = 1024;
         const int ScreenHeight = 768;

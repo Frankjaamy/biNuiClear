@@ -48,7 +48,7 @@ namespace biNUICLeAR
                 }
             }
             Random rm = new Random();
-            for (int i = 0; i < 500; i++)
+            for (int i = 0; i < 50; i++)
             {
                 int indexX = rm.Next(1, ConstValues.getTilesVertical);
                 int indexY = rm.Next(1, ConstValues.getTilesHorizontal);
