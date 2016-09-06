@@ -103,7 +103,7 @@ namespace biNUICLeAR
             }
             return false;
         }
-        public bool PathFinding(Tiles[,] map,int startX,int startY,int endX,int endY,int sizeX=1, int sizeY =1, bool allowGoThroughDanger = false)
+        public bool PathFinding(Tiles[,] map, int startX, int startY, int endX, int endY, int sizeX = 1, int sizeY = 1, bool allowGoThroughDanger = false, bool ignoreAllObstacles = false)
         {
             if(attempts >= 2)
             {
@@ -118,7 +118,7 @@ namespace biNUICLeAR
 
             this.endNode.x = endX;
             this.endNode.y = endY;
-            if (isUnRevealed(map, endX, endY,sizeX,sizeY))
+            if (isUnRevealed(map, endX, endY,ignoreAllObstacles,sizeX,sizeY))
             {
                 return false;
             }
@@ -160,7 +160,7 @@ namespace biNUICLeAR
                         }
                         else
                         {
-                            if(!checkNodeInList(x,y,openList) && !checkNodeInList(x, y, closeList) && !isUnRevealed(map, x, y,sizeX,sizeY) && ((!isMined(map,x,y,sizeX,sizeY))||allowGoThroughDanger))
+                            if(!checkNodeInList(x,y,openList) && !checkNodeInList(x, y, closeList) && !isUnRevealed(map, x, y, ignoreAllObstacles,sizeX,sizeY) && ((!isMined(map,x,y, ignoreAllObstacles,sizeX, sizeY))||allowGoThroughDanger))
                             {
                                 PathNode chosenNode = new PathNode();
                                 initNode(chosenNode, pCurrent, x, y, endX, endY);
@@ -200,8 +200,10 @@ namespace biNUICLeAR
             }
         }
 
-        public bool isUnRevealed(Tiles[,] map, int y, int x, int sizeY =1, int sizeX =1)
+        public bool isUnRevealed(Tiles[,] map, int y, int x,  bool ignoreAllObstacles,int sizeY = 1, int sizeX = 1)
         {
+            if (ignoreAllObstacles == true)
+                return false;
             if(x < 0 || y < 0)
             {
                 return true;
@@ -229,8 +231,10 @@ namespace biNUICLeAR
             return false;  
         }
 
-        public bool isMined(Tiles[,] map,int y, int x, int sizeY = 1, int sizeX = 1)
+        public bool isMined(Tiles[,] map,int y, int x, bool ignoreAllObstacles, int sizeY = 1, int sizeX = 1)
         {
+            if (ignoreAllObstacles == true)
+                return false;
             for (int i = 0; i < sizeX; ++i)
             {
                 for (int j = 0; j < sizeY; j++)

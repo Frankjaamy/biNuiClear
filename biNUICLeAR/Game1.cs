@@ -20,12 +20,13 @@ namespace biNUICLeAR
     public static class ConstValues
     {
         const int TileSize = 16;
-
+        const int StartPressureTimeSeconds = 1 * 60;//60 sec
         const int TilesVertical = 48;
         const int TilesHorizontal = 64;
 
         const int ScreenWidth = 1024;
         const int ScreenHeight = 768;
+
  
         public static int getTileSize
         {
@@ -46,6 +47,11 @@ namespace biNUICLeAR
         public static int getScreenHeight
         {
             get { return ScreenHeight; }
+        }
+
+        public static int getStartPressureTime
+        {
+            get { return StartPressureTimeSeconds; }
         }
 
     }
@@ -69,7 +75,9 @@ namespace biNUICLeAR
         MapScene mReader;
 
         private List<Soldier> refugees;
-
+        private List<Enemy> enemies;
+        float secondsBetweenUpdate;
+        float secondsBetweenPressureSpawn;
         MouseState currentMouseState;
         KeyboardState currentKeyState;
 
@@ -113,12 +121,15 @@ namespace biNUICLeAR
             flags = new List<DrawInfo>();
 
             refugees = new List<Soldier>();
+            enemies = new List<Enemy>();
             for (int i = 0; i < 1; i++)
             {
                 Soldier tempSoldier = new Soldier();
                 tempSoldier.currentPathIndex = 0;
                 refugees.Add(tempSoldier);
             }
+
+
             base.Initialize();
         }
 
@@ -146,7 +157,6 @@ namespace biNUICLeAR
             {
                 p.Initialize(textureSoldier, p.Position);
             }
-
         }
 
         /// <summary>
@@ -169,7 +179,7 @@ namespace biNUICLeAR
                 Exit();
 
             // TODO: Add your update logic here
-            UpdatePlayerInput(gameTime);
+            UpdateEVERYTHING(gameTime);
             base.Update(gameTime);
         }
 
@@ -184,34 +194,85 @@ namespace biNUICLeAR
             mReader.drawMap(spriteBatch);
             foreach (Soldier element in refugees)
                 element.Draw(spriteBatch);
+            foreach (Enemy element in enemies)
+            {
+                element.Draw(spriteBatch);
+            }
+
             foreach(DrawInfo flag in flags)
                 spriteBatch.Draw(flag.texture, flag.position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.0f);
             spriteBatch.End();
             base.Draw(gameTime);
         }
-        private void UpdatePlayerInput(GameTime gameTime)
+        //Better name for function
+        private void UpdateEVERYTHING(GameTime gameTime)
         {
+            secondsBetweenUpdate += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            secondsBetweenPressureSpawn += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (secondsBetweenPressureSpawn >= ConstValues.getStartPressureTime)
+            {
+                secondsBetweenPressureSpawn = 0;
+                Enemy temp = new Enemy();
+                Texture2D textureEnemy = Content.Load<Texture2D>("Graphics\\charactersprite");
+                temp.Initialize(textureEnemy, new Vector2(0, 0));
+                enemies.Add(temp);
+            }
+
+            foreach (Enemy element in enemies)
+            {
+                if (refugees.Count > 0)
+                    if (secondsBetweenUpdate >= 10 || element.closeToRefugee(refugees[0].Position))
+                    {
+                        if (element.closeToRefugee(refugees[0].Position))
+                        {
+                            if(element.death(refugees[0].Position))
+                            {
+                                enemies.Remove(element);
+                                refugees.Remove(refugees[0]);
+                                return;
+                            }
+
+                            element.isHuntingMode = true;
+                        }
+                        else
+                            element.isHuntingMode = false;
+                        element.recalculatePath(mReader.GetMap, updateGoal(element));
+                    }
+            }
+            if (secondsBetweenUpdate >= 10)
+                secondsBetweenUpdate = 0;
             currentMouseState = Mouse.GetState();
             currentKeyState = Keyboard.GetState();
 
             if (currentMouseState.LeftButton == ButtonState.Pressed && currentMouseState.RightButton == ButtonState.Pressed)
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
-                //Vector2 worldPosition = Vector2.Transform(mousePosition, Matrix.Invert(camera.GetViewMatrix()));
                 mReader.DetectBlocks((int)mousePosition.X / ConstValues.getTileSize, (int)mousePosition.Y / ConstValues.getTileSize);
             }
-
             else if (currentMouseState.LeftButton == ButtonState.Pressed)
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
-                //Vector2 worldPosition = Vector2.Transform(mousePosition, Matrix.Invert(camera.GetViewMatrix()));
                 mReader.RevealBlock((int)mousePosition.X/ConstValues.getTileSize, (int)mousePosition.Y/ConstValues.getTileSize);
+                if (((int)mousePosition.X / ConstValues.getTileSize) <= ConstValues.getTilesHorizontal && ((int)mousePosition.Y / ConstValues.getTileSize) <= ConstValues.getTilesVertical && ((int)mousePosition.X / ConstValues.getTileSize) > 0 && ((int)mousePosition.Y / ConstValues.getTileSize) > 0)
+                    if (mReader.mapTiles[(int)mousePosition.Y / ConstValues.getTileSize, (int)mousePosition.X / ConstValues.getTileSize].isMined && mReader.mapTiles[(int)mousePosition.Y / ConstValues.getTileSize, (int)mousePosition.X / ConstValues.getTileSize].isRevealed)
+                    {
+                        for (int i = 0; i <=5; i++)
+                        {
+                            Enemy temp = new Enemy();
+                            Texture2D textureEnemy = Content.Load<Texture2D>("Graphics\\charactersprite");
+                            temp.Initialize(textureEnemy, mReader.mapTiles[(int)mousePosition.Y / ConstValues.getTileSize, (int)mousePosition.X / ConstValues.getTileSize].Position);
+                            enemies.Add(temp);
+                        }
+
+                    }
             }
             else if(currentMouseState.MiddleButton == ButtonState.Pressed)
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
                 foreach (Soldier s in refugees)
                     s.recalculatePath(mReader.GetMap, new Vector2((int)currentMouseState.X / ConstValues.getTileSize, (int)currentMouseState.Y / ConstValues.getTileSize));
+
             }
             else if (currentMouseState.RightButton == ButtonState.Pressed)
             {
@@ -258,10 +319,20 @@ namespace biNUICLeAR
                     element.Update();
                     if (element.endofpath())
                     {
-                        return;
+                       return;
                     }                    
                     element.march(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height,ref mReader);
                 }
+                foreach (Enemy element in enemies)
+                {
+                    element.Update();
+                    if (element.endofpath())
+                    {
+                        element.recalculatePath(mReader.GetMap, updateGoal(element));
+                    }
+                    element.march(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, ref mReader);
+                }
+
             }
         }
 
@@ -292,6 +363,22 @@ namespace biNUICLeAR
             {
                 element.currentPathIndex = 0;
             }
+        }
+
+        private Vector2 updateGoal(Enemy e)
+        {
+            if (e.isHuntingMode == true)
+            {
+                return refugees[0].Position/ ConstValues.getTileSize;
+            }
+            else
+            {
+                Random random = new Random((int)e.Position.LengthSquared());
+                int nrVerti = random.Next(ConstValues.getTilesVertical);
+                int nrHoriz = random.Next(ConstValues.getTilesHorizontal);
+                return new Vector2(nrHoriz, nrVerti);
+            }
+
         }
     }
 }

@@ -232,9 +232,12 @@ namespace GameActor
 
     class Enemy : MoveableActor
     {
+        public int currentPathIndex = 0;
+        PathFinder pathFinder;
+
         public int searchingRadius;
         public float wandererSpeed = 1.5f;
-        public bool isSearchingMode;
+        public bool searchAndDestroyMode = false;
         public bool isHuntingMode;
         public bool isDead;
 
@@ -260,11 +263,17 @@ namespace GameActor
             PlayerTexture = texture;
             this.Position = position;
             DestPosition = position;
-            actorType = ActorType.typeSoldier;
+            actorType = ActorType.typeEnemyWander;
             animator = new Animator(PlayerTexture, 8, 3);
-
-            isHuntingMode = isDead = isSearchingMode = false;
+            Health = 100;
+            speed = 0.50f;
+            sizeX = 1;
+            sizeY = 1;
+            isHuntingMode = isDead  = false;
             searchingRadius = 2;
+
+            pathFinder = new PathFinder();
+            pathFinder.initialize();
         }
         public override void Update()
         {
@@ -278,9 +287,16 @@ namespace GameActor
         public bool closeToRefugee(Vector2 pos)
         {
             float distance = Vector2.Distance(this.Position, pos);
+            int scanSize;
             if (distance < 0)
                 distance *= -1;
-            if (distance < (ConstValues.getTileSize*2))
+            if (isHuntingMode)
+            {
+                scanSize = 10;
+            }
+            else
+                scanSize = 5;
+            if (distance < (ConstValues.getTileSize*scanSize))
             {
                 return true;
             }
@@ -288,9 +304,70 @@ namespace GameActor
                 return false;
         }
 
+        public bool death(Vector2 pos)
+        {
+            float distance = Vector2.Distance(this.Position, pos);
+            if (distance <= (ConstValues.getTileSize))
+                return true;
+            return false;
+        }
+
         public bool searchingTarget()
         {
             return true;
+        }
+
+        public void march(int viewpostWidth, int viewportHeight, ref MapScene map)
+        {
+            if (Vector2.Distance(Position, DestPosition) <= 0.05f * ConstValues.getTileSize)
+            {
+                currentPathIndex += 1;
+                if (currentPathIndex < pathFinder.getPathNodes.Count)
+                {
+                    int x = pathFinder.getPathNodes[currentPathIndex].x * ConstValues.getTileSize;
+                    int y = pathFinder.getPathNodes[currentPathIndex].y * ConstValues.getTileSize;
+                    DestPosition = new Vector2(x, y);
+                    Direction = DestPosition - Position;
+                }
+
+            }
+            else
+            {
+                Position.X += direction.X * speed / ConstValues.getTileSize;
+                Position.Y += direction.Y * speed / ConstValues.getTileSize;
+            }
+
+#if  false
+            map.quickResetMapDetection();
+            int indexY = (int)Position.Y / ConstValues.getTileSize;
+            int indexX = (int)Position.X / ConstValues.getTileSize;
+            for (int i = indexX - detectRadius; i < indexX + sizeX + detectRadius; i++)
+            {
+                for (int j = indexY - detectRadius; j < indexY + sizeY + detectRadius; j++)
+                {
+                    if (i < 0 || j < 0 || i > ConstValues.getTilesHorizontal || j > ConstValues.getTilesVertical)
+                    {
+                        continue;
+                    }
+                    map.RevealBlock(i, j, false);
+                }
+            } 
+#endif
+
+        }
+        public void recalculatePath(Tiles[,] map, Vector2 endPoint)
+        {
+            currentPathIndex = 0;
+                pathFinder.PathFinding(map, (int)Position.X / ConstValues.getTileSize, (int)Position.Y / ConstValues.getTileSize, (int)endPoint.X, (int)endPoint.Y, sizeX, sizeY, false, true);
+        }
+        public bool endofpath()
+        {
+            if (pathFinder.getPathNodes.Count <= 0)
+            {
+                return true;
+            }
+            else
+                return false;
         }
     }
 }
