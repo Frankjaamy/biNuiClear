@@ -31,7 +31,7 @@ namespace biNUICLeAR
         {
 
         }
-        public bool initMap(Texture2D textGround, Texture2D mined, Texture2D mask, SpriteFont f = null)
+        public bool initMap(Texture2D textGround, Texture2D mined,Texture2D mask, SpriteFont f = null)
         {
             mapTiles = new Tiles[ConstValues.getTilesVertical, ConstValues.getTilesHorizontal];
 
@@ -43,6 +43,7 @@ namespace biNUICLeAR
                     mapTiles[i, j].Position = new Vector2(j * ConstValues.getTileSize, i * ConstValues.getTileSize);
                     mapTiles[i, j].PlayerTexture = textGround;
                     mapTiles[i, j].TextureMask = mask;
+                    mapTiles[i, j].TextureMined = mined;
                     mapTiles[i, j].initFont(f);
                 }
             }
@@ -51,9 +52,11 @@ namespace biNUICLeAR
             {
                 int indexX = rm.Next(1, ConstValues.getTilesVertical);
                 int indexY = rm.Next(1, ConstValues.getTilesHorizontal);
-
+                if(indexX<6 && indexY < 6)
+                {
+                    continue;
+                }
                 mapTiles[indexX, indexY].isMined = true;
-                mapTiles[indexX, indexY].PlayerTexture = mined;
             }
             return true;
         }
@@ -68,15 +71,19 @@ namespace biNUICLeAR
                 }
                 else
                 {
-                    if (p.PlayerTexture != null)
+                    if (!p.isMined)
                     {
                         spriteBatch.Draw(p.PlayerTexture, p.Position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.0f);
+                    }
+                    else
+                    {
+                        spriteBatch.Draw(p.TextureMined, p.Position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.0f);
                     }
                     if (!p.isSafe)
                     {
                         if (!p.isMined)
                         {
-                            spriteBatch.DrawString(p.numberMines, p.mineCount.ToString(), p.Position, Color.Black);
+                            spriteBatch.DrawString(p.numberMines, p.mineCount.ToString(), p.Position, Color.Red);
                         }
                     }
                 }
@@ -115,9 +122,34 @@ namespace biNUICLeAR
                     }
                 }
             }
-
+            int a = 0;
         }
+        public void resetMap()
+        {
+            foreach (Tiles t in mapTiles)
+            {
+                t.isBlock = false;
+                t.isTemporaryRevealed = false;
+                t.isRevealed = false;
+                t.isFlag = false;
+                t.isMined = false;
+                t.isSafe = false;
+                t.isSearched = false;
+                t.mineCount = 0;
+            }
 
+            Random rm = new Random();
+            for (int i = 0; i < 500; i++)
+            {
+                int indexX = rm.Next(1, ConstValues.getTilesVertical);
+                int indexY = rm.Next(1, ConstValues.getTilesHorizontal);
+                if (indexX < 6 && indexY < 6)
+                {
+                    continue;
+                }
+                mapTiles[indexX, indexY].isMined = true;
+            }
+        }
         public void quickResetMapDetection()
         {
             foreach (Tiles t in mapTiles)
@@ -165,7 +197,8 @@ namespace biNUICLeAR
             {
                 return false;
             }
-            mapTiles[y, x].isFlag = !mapTiles[y,x].isFlag;
+            if(!mapTiles[y,x].isRevealed)
+                mapTiles[y, x].isFlag = !mapTiles[y,x].isFlag;
             return mapTiles[y, x].isFlag;
         }
 

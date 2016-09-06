@@ -66,6 +66,7 @@ namespace GameActor
         public int mineCount = 0;
 
         public Texture2D TextureMask;
+        public Texture2D TextureMined;
         public Tiles()
         {
             isBlock = false;

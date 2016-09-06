@@ -73,7 +73,7 @@ namespace biNUICLeAR
         List<DrawInfo> flags;
 
         MapScene mReader;
-
+        Timer timer;
         private List<Soldier> refugees;
         private List<Enemy> enemies;
         float secondsBetweenUpdate;
@@ -81,21 +81,24 @@ namespace biNUICLeAR
         MouseState currentMouseState;
         KeyboardState currentKeyState;
 
+        String endOutPut;
+        SpriteFont gameInfo;
 
+        float timeIntervals = 50.0f;
         bool isGameStart = false;
-        Vector2 endPosition = new Vector2(ConstValues.getTilesHorizontal - 2, ConstValues.getTilesVertical - 3);
+        bool isGameFinish = false;
+
+        Vector2 endPosition = new Vector2(ConstValues.getTilesHorizontal - 1, ConstValues.getTilesVertical - 1);
         public bool IsGameStart
         {
             set { isGameStart = value; }
             get { return isGameStart; }
         }
-
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
-
         public bool isActorInTheBlock(Vector2 currentBlock, ActorType aType)
         {
 
@@ -119,6 +122,7 @@ namespace biNUICLeAR
            
             mReader = new MapScene();
             flags = new List<DrawInfo>();
+            timer = new Timer();
 
             refugees = new List<Soldier>();
             enemies = new List<Enemy>();
@@ -150,9 +154,12 @@ namespace biNUICLeAR
             Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\charactersprite");
             
 
-            SpriteFont sf = Content.Load<SpriteFont>("Number");
-            mReader.initMap(textureGround, textureMine,textureBlock,sf);
+            SpriteFont sf = Content.Load<SpriteFont>("Information");
+            gameInfo = sf;
+            SpriteFont generalFont = Content.Load<SpriteFont>("Number");
+            mReader.initMap(textureGround, textureMine,textureBlock,generalFont);
             mReader.updateMap();
+            timer.init(generalFont);
             foreach (Soldier p in refugees)
             {
                 p.Initialize(textureSoldier, p.Position);
@@ -180,6 +187,43 @@ namespace biNUICLeAR
 
             // TODO: Add your update logic here
             UpdateEVERYTHING(gameTime);
+
+          
+            if (IsGameStart)
+            {
+                timer.Update(gameTime);
+                foreach (Soldier element in refugees)
+                {
+                    element.Update();
+                    if (element.endofpath())
+                    {
+                        return;
+                    }
+                    element.march(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, ref mReader);
+                }
+            }
+
+            isGameFinish = false;
+            foreach (Soldier element in refugees)
+            {
+                if (((int)element.Position.X / ConstValues.getTileSize != (int)endPosition.X) ||
+                    ((int)element.Position.Y / ConstValues.getTileSize != (int)endPosition.Y))
+                {
+                    break;
+                }
+                isGameFinish = true;
+            }
+
+            if (isGameFinish)
+            {
+                isGameStart = false;
+                //game end
+                endOutPut = string.Format(
+@"           Game End.  
+         Soldiers Left: {0}   
+Time Used:{1,3:00}:{2,3:000}:{3,3:000}"
+                                ,refugees.Count,timer.minute, timer.seconds, timer.miniseconds);
+            }
             base.Update(gameTime);
         }
 
@@ -192,6 +236,7 @@ namespace biNUICLeAR
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
             mReader.drawMap(spriteBatch);
+            timer.draw(spriteBatch);
             foreach (Soldier element in refugees)
                 element.Draw(spriteBatch);
             foreach (Enemy element in enemies)
@@ -201,6 +246,11 @@ namespace biNUICLeAR
 
             foreach(DrawInfo flag in flags)
                 spriteBatch.Draw(flag.texture, flag.position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.0f);
+            if (isGameFinish)
+            {
+                Vector2 size = gameInfo.MeasureString(endOutPut);
+                spriteBatch.DrawString(gameInfo, endOutPut, new Vector2(ConstValues.getScreenWidth / 2 - size.X/2, ConstValues.getScreenHeight / 2 - size.Y/2), Color.Black);
+            }
             spriteBatch.End();
             base.Draw(gameTime);
         }
@@ -277,34 +327,60 @@ namespace biNUICLeAR
             else if (currentMouseState.RightButton == ButtonState.Pressed)
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
-                //Vector2 worldPosition = Vector2.Transform(mousePosition, Matrix.Invert(camera.GetViewMatrix()));
-                if (mReader.PlaceFlag((int)mousePosition.X / ConstValues.getTileSize, (int)mousePosition.Y / ConstValues.getTileSize))
+                if(mReader.GetMap[(int)mousePosition.Y / ConstValues.getTileSize,(int)mousePosition.X / ConstValues.getTileSize].isRevealed)
                 {
-                    flags.Add(new DrawInfo(Content.Load<Texture2D>("Graphics//Flag.png"), new Vector2(ConstValues.getTileSize * ((int)mousePosition.X / ConstValues.getTileSize), ConstValues.getTileSize * ((int)mousePosition.Y / ConstValues.getTileSize))));
+                    foreach (Soldier s in refugees)
+                        s.recalculatePath(mReader.GetMap, new Vector2((int)currentMouseState.X / ConstValues.getTileSize, (int)currentMouseState.Y / ConstValues.getTileSize));
                 }
                 else
                 {
-
-                    for (int i = 0; i < flags.Count; i++)
+                    if (mReader.PlaceFlag((int)mousePosition.X / ConstValues.getTileSize, (int)mousePosition.Y / ConstValues.getTileSize))
                     {
-                        DrawInfo f = flags.ElementAt(i);
-                        if ((f.position.X == ConstValues.getTileSize * ((int)mousePosition.X / ConstValues.getTileSize) &&
-                            (f.position.Y == ConstValues.getTileSize * ((int)mousePosition.Y / ConstValues.getTileSize))))
+                        flags.Add(new DrawInfo(Content.Load<Texture2D>("Graphics//Flag.png"), new Vector2(ConstValues.getTileSize * ((int)mousePosition.X / ConstValues.getTileSize), ConstValues.getTileSize * ((int)mousePosition.Y / ConstValues.getTileSize))));
+                    }
+                    else
+                    {
+                        for (int i = 0; i < flags.Count; i++)
                         {
-                            flags.Remove(f);
+                            DrawInfo f = flags.ElementAt(i);
+                            if ((f.position.X == ConstValues.getTileSize * ((int)mousePosition.X / ConstValues.getTileSize) &&
+                                (f.position.Y == ConstValues.getTileSize * ((int)mousePosition.Y / ConstValues.getTileSize))))
+                            {
+                                flags.Remove(f);
+                            }
                         }
                     }
-                }
-                
+                }              
             }
 
             if (currentKeyState.IsKeyDown(Keys.Back))
             {
-               
+                if (isGameFinish)
+                {
+                    isGameStart = isGameFinish = false;
+                    mReader.resetMap();
+                    mReader.updateMap();
+                    timer.reset();
+                    
+                    refugees.Clear();
+                    refugees = new List<Soldier>();
+                    for (int i = 0; i < 1; i++)
+                    {
+                        Soldier tempSoldier = new Soldier();
+                        tempSoldier.currentPathIndex = 0;
+                        refugees.Add(tempSoldier);
+                    }
+                    Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\charactersprite");
+                    foreach (Soldier p in refugees)
+                    {
+                        p.Initialize(textureSoldier, p.Position);
+                    }
 
+                }
             }
             if (currentKeyState.IsKeyDown(Keys.Space))
             {
+                mReader.RevealBlock(0, 0);
                 IsGameStart = !IsGameStart;
                 foreach(Soldier s in refugees)
                 {
@@ -332,6 +408,7 @@ namespace biNUICLeAR
                     }
                     element.march(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, ref mReader);
                 }
+
 
             }
         }
