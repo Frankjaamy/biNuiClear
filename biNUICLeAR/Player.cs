@@ -66,6 +66,7 @@ namespace GameActor
         public int mineCount = 0;
 
         public Texture2D TextureMask;
+        public Texture2D TextureMined;
         public Tiles()
         {
             isBlock = false;
@@ -161,7 +162,7 @@ namespace GameActor
 
             actorType = ActorType.typeSoldier; 
             Health = 100;
-            speed = 0.50f;
+            speed = 2.0f;
             sizeX = 1;
             sizeY = 1;
             animator = new Animator(PlayerTexture, 8, 3);
