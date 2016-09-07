@@ -33,14 +33,14 @@ namespace biNUICLeAR
         }
         public bool initMap(Texture2D textGround, Texture2D mined,Texture2D mask, SpriteFont f = null)
         {
-            mapTiles = new Tiles[ConstValues.getTilesVertical, ConstValues.getTilesHorizontal];
+            mapTiles = new Tiles[OptionValues.getTilesVertical, OptionValues.getTilesHorizontal];
 
-            for (int i = 0; i < ConstValues.getTilesVertical; i++)
+            for (int i = 0; i < OptionValues.getTilesVertical; i++)
             {
-                for (int j = 0; j < ConstValues.getTilesHorizontal; j++)
+                for (int j = 0; j < OptionValues.getTilesHorizontal; j++)
                 {
                     mapTiles[i, j] = new Tiles();
-                    mapTiles[i, j].Position = new Vector2(j * ConstValues.getTileSize, i * ConstValues.getTileSize);
+                    mapTiles[i, j].Position = new Vector2(j * OptionValues.getTileSize, i * OptionValues.getTileSize);
                     mapTiles[i, j].PlayerTexture = textGround;
                     mapTiles[i, j].TextureMask = mask;
                     mapTiles[i, j].TextureMined = mined;
@@ -48,10 +48,10 @@ namespace biNUICLeAR
                 }
             }
             Random rm = new Random();
-            for (int i = 0; i < 500; i++)
+            for (int i = 0; i < OptionValues.getMinesCount; i++)
             {
-                int indexX = rm.Next(1, ConstValues.getTilesVertical);
-                int indexY = rm.Next(1, ConstValues.getTilesHorizontal);
+                int indexX = rm.Next(1, OptionValues.getTilesVertical);
+                int indexY = rm.Next(1, OptionValues.getTilesHorizontal);
                 if(indexX<6 && indexY < 6)
                 {
                     continue;
@@ -93,14 +93,14 @@ namespace biNUICLeAR
         {
             x = x < 0 ? 0 : x;
             y = y < 0 ? 0 : y;
-            x = x > (ConstValues.getTilesVertical - 1) ? (ConstValues.getTilesVertical - 1) : x;
-            y = y > (ConstValues.getTilesHorizontal - 1) ? (ConstValues.getTilesHorizontal - 1) : y;
+            x = x > (OptionValues.getTilesVertical - 1) ? (OptionValues.getTilesVertical - 1) : x;
+            y = y > (OptionValues.getTilesHorizontal - 1) ? (OptionValues.getTilesHorizontal - 1) : y;
         }
         public void updateMap()
         {
-            for (int i = 0; i < ConstValues.getTilesVertical; i++)
+            for (int i = 0; i < OptionValues.getTilesVertical; i++)
             {
-                for (int j = 0; j < ConstValues.getTilesHorizontal; j++)
+                for (int j = 0; j < OptionValues.getTilesHorizontal; j++)
                 {
                     if (mapTiles[i, j].isMined)
                     {
@@ -122,7 +122,6 @@ namespace biNUICLeAR
                     }
                 }
             }
-            int a = 0;
         }
         public void resetMap()
         {
@@ -141,8 +140,8 @@ namespace biNUICLeAR
             Random rm = new Random();
             for (int i = 0; i < 500; i++)
             {
-                int indexX = rm.Next(1, ConstValues.getTilesVertical);
-                int indexY = rm.Next(1, ConstValues.getTilesHorizontal);
+                int indexX = rm.Next(1, OptionValues.getTilesVertical);
+                int indexY = rm.Next(1, OptionValues.getTilesHorizontal);
                 if (indexX < 6 && indexY < 6)
                 {
                     continue;
@@ -159,7 +158,7 @@ namespace biNUICLeAR
         }
         public bool RevealBlock(int x, int y, bool furtherReveal = true)
         {
-            if (x < 0 || y < 0 || y > ConstValues.getTilesVertical - 1 || x > ConstValues.getTilesHorizontal - 1)
+            if (x < 0 || y < 0 || y > OptionValues.getTilesVertical - 1 || x > OptionValues.getTilesHorizontal - 1)
             {
                 return false;
             }
@@ -175,6 +174,7 @@ namespace biNUICLeAR
             }
             mapTiles[y, x].isRevealed = true;
             mapTiles[y, x].isSearched = true;
+            mapTiles[y, x].isFlag = false;
             if (mapTiles[y, x].isSafe)
             {
                 for (int i = 0; i < 8; i++)
@@ -193,7 +193,7 @@ namespace biNUICLeAR
 
         public bool PlaceFlag(int x, int y)
         {
-            if (x < 0 || y < 0 || y > ConstValues.getTilesVertical - 1 || x > ConstValues.getTilesHorizontal - 1)
+            if (x < 0 || y < 0 || y > OptionValues.getTilesVertical - 1 || x > OptionValues.getTilesHorizontal - 1)
             {
                 return false;
             }
@@ -204,7 +204,7 @@ namespace biNUICLeAR
 
         public bool DetectBlocks(int x, int y)
         {
-            if (x < 0 || y < 0 || y > ConstValues.getTilesVertical - 1 || x > ConstValues.getTilesHorizontal - 1)
+            if (x < 0 || y < 0 || y > OptionValues.getTilesVertical - 1 || x > OptionValues.getTilesHorizontal - 1)
             {
                 return false;
             }

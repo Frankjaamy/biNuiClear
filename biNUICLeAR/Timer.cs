@@ -47,7 +47,8 @@ namespace biNUICLeAR
         public void draw(SpriteBatch batch)
         {
             String output = String.Format("{0,3:00}:{1,3:000}:{2,3:000}", minute, seconds, miniseconds);
-            batch.DrawString(timerTexture, output, new Vector2(ConstValues.getScreenWidth*0.89f, 0), Color.Black);
+            Vector2 size = timerTexture.MeasureString(output);
+            batch.DrawString(timerTexture, output, new Vector2(OptionValues.getScreenWidth - size.X, 0), Color.White);
         }
     }
 }

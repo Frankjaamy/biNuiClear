@@ -177,15 +177,15 @@ namespace GameActor
             //Now using Animator instead
             animator.Draw(spriteBatch, Position, direction);
         }
-        public void march(int viewpostWidth, int viewportHeight, ref MapScene map)
+        public void march(ref MapScene map)
         {
-            if ( Vector2.Distance(Position,DestPosition) <= 0.05f * ConstValues.getTileSize)
+            if ( Vector2.Distance(Position,DestPosition) <= 0.05f * OptionValues.getTileSize)
             {
                 currentPathIndex += 1;
                 if (currentPathIndex < pathFinder.getPathNodes.Count)
                 {
-                    int x = pathFinder.getPathNodes[currentPathIndex].x * ConstValues.getTileSize;
-                    int y = pathFinder.getPathNodes[currentPathIndex].y * ConstValues.getTileSize;
+                    int x = pathFinder.getPathNodes[currentPathIndex].x * OptionValues.getTileSize;
+                    int y = pathFinder.getPathNodes[currentPathIndex].y * OptionValues.getTileSize;
                     DestPosition = new Vector2(x, y);
                     Direction = DestPosition - Position;
                 }
@@ -193,8 +193,8 @@ namespace GameActor
             }
             else
             {
-                Position.X += direction.X * speed/ ConstValues.getTileSize;
-                Position.Y += direction.Y * speed / ConstValues.getTileSize;
+                Position.X += direction.X * speed/ OptionValues.getTileSize;
+                Position.Y += direction.Y * speed / OptionValues.getTileSize;
             }
 
 #if  false
@@ -218,7 +218,11 @@ namespace GameActor
         public void recalculatePath(Tiles[,] map, Vector2 endPoint)
         {
             currentPathIndex = 0;
-            pathFinder.PathFinding(map, (int)Position.X/ConstValues.getTileSize, (int)Position.Y/ConstValues.getTileSize, (int)endPoint.X, (int)endPoint.Y,sizeX,sizeY);
+            float posX = Position.X;
+            float posY = Position.Y;
+            posX = (float)Math.Round(posX);
+            posY = (float)Math.Round(posY);
+            pathFinder.PathFinding(map, (int)Position.X/OptionValues.getTileSize, (int)Position.Y/OptionValues.getTileSize, (int)endPoint.X, (int)endPoint.Y,sizeX,sizeY);
         }
         public bool endofpath()
         {
@@ -296,7 +300,7 @@ namespace GameActor
             }
             else
                 scanSize = 5;
-            if (distance < (ConstValues.getTileSize*scanSize))
+            if (distance < (OptionValues.getTileSize*scanSize))
             {
                 return true;
             }
@@ -307,7 +311,7 @@ namespace GameActor
         public bool death(Vector2 pos)
         {
             float distance = Vector2.Distance(this.Position, pos);
-            if (distance <= (ConstValues.getTileSize*2))
+            if (distance <= (OptionValues.getTileSize))
                 return true;
             return false;
         }
@@ -317,15 +321,15 @@ namespace GameActor
             return true;
         }
 
-        public void march(int viewpostWidth, int viewportHeight, ref MapScene map)
+        public void march(ref MapScene map)
         {
-            if (Vector2.Distance(Position, DestPosition) <= 0.05f * ConstValues.getTileSize)
+            if (Vector2.Distance(Position, DestPosition) <= 0.05f * OptionValues.getTileSize)
             {
                 currentPathIndex += 1;
                 if (currentPathIndex < pathFinder.getPathNodes.Count)
                 {
-                    int x = pathFinder.getPathNodes[currentPathIndex].x * ConstValues.getTileSize;
-                    int y = pathFinder.getPathNodes[currentPathIndex].y * ConstValues.getTileSize;
+                    int x = pathFinder.getPathNodes[currentPathIndex].x * OptionValues.getTileSize;
+                    int y = pathFinder.getPathNodes[currentPathIndex].y * OptionValues.getTileSize;
                     DestPosition = new Vector2(x, y);
                     Direction = DestPosition - Position;
                 }
@@ -333,8 +337,8 @@ namespace GameActor
             }
             else
             {
-                Position.X += direction.X * speed / ConstValues.getTileSize;
-                Position.Y += direction.Y * speed / ConstValues.getTileSize;
+                Position.X += direction.X * speed / OptionValues.getTileSize;
+                Position.Y += direction.Y * speed / OptionValues.getTileSize;
             }
 
 #if  false
@@ -358,7 +362,7 @@ namespace GameActor
         public void recalculatePath(Tiles[,] map, Vector2 endPoint)
         {
             currentPathIndex = 0;
-                pathFinder.PathFinding(map, (int)Position.X / ConstValues.getTileSize, (int)Position.Y / ConstValues.getTileSize, (int)endPoint.X, (int)endPoint.Y, sizeX, sizeY, false, true);
+            pathFinder.PathFinding(map, (int)Position.X / OptionValues.getTileSize, (int)Position.Y / OptionValues.getTileSize, (int)endPoint.X, (int)endPoint.Y, sizeX, sizeY, false, true);
         }
         public bool endofpath()
         {

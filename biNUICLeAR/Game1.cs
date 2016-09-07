@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -9,43 +10,66 @@ using System.Text;
 using System.Threading.Tasks;
 
 using GameActor;
+using Microsoft.Xna.Framework.Media;
 
 namespace biNUICLeAR
 {
-    
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
     /// 
-    public static class ConstValues
+    public static class OptionValues
     {
         const int TileSize = 16;
-        const int StartPressureTimeSeconds = 1 * 10;//60 sec
-        const int TilesVertical = 48;
-        const int TilesHorizontal = 64;
 
-        const int ScreenWidth = 1024;
-        const int ScreenHeight = 768;
+        const int StartPressureTimeSeconds = 1 * 60;//60 sec
+        static int TilesVertical = 16;
+        static int TilesHorizontal = 16;
 
- 
+        static int ScreenWidth = TilesHorizontal*TileSize;
+        static int ScreenHeight = TilesVertical * TileSize;
+
+        static int soldiersCount = 5;
+        public static int getSoldierCount
+        {
+            set { soldiersCount = value; }
+            get { return soldiersCount; }
+        }
+
+        static int minesCount = 5;
+        public static int getMinesCount
+        {
+            set { minesCount = value; }
+            get { return minesCount; }
+        }
+        static int enemyCount = 5;
+        public static int getEnemyCount
+        {
+            set { enemyCount = value; }
+            get { return enemyCount; }
+        }
         public static int getTileSize
         {
             get { return TileSize; }
         }
         public static int getTilesVertical
         {
+            set { TilesVertical = value;}
             get { return TilesVertical; }
         }
         public static int getTilesHorizontal
         {
+            set { TilesHorizontal = value; }
             get { return TilesHorizontal; }
         }
         public static int getScreenWidth
         {
+            set { ScreenWidth = value; }
             get { return ScreenWidth; }
         }
         public static int getScreenHeight
         {
+            set { ScreenHeight = value; }
             get { return ScreenHeight; }
         }
 
@@ -69,31 +93,7 @@ namespace biNUICLeAR
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-
-        List<DrawInfo> flags;
-
-        MapScene mReader;
-        Timer timer;
-        private List<Soldier> refugees;
-        private List<Enemy> enemies;
-        float secondsBetweenUpdate;
-        float secondsBetweenPressureSpawn;
-        float secondsSinceLastUpdate;
-        MouseState currentMouseState;
-        KeyboardState currentKeyState;
-
-        String endOutPut;
-        SpriteFont gameInfo;
-
-        bool isGameStart = false;
-        bool isGameFinish = false;
-
-        Vector2 endPosition = new Vector2(ConstValues.getTilesHorizontal - 1, ConstValues.getTilesVertical - 1);
-        public bool IsGameStart
-        {
-            set { isGameStart = value; }
-            get { return isGameStart; }
-        }
+        GameSceneManager gm;
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -114,25 +114,8 @@ namespace biNUICLeAR
         {
             // TODO: Add your initialization logic here
             this.IsMouseVisible = true;
-
-            graphics.PreferredBackBufferWidth = ConstValues.getScreenWidth;
-            graphics.PreferredBackBufferHeight = ConstValues.getScreenHeight;
-            graphics.ApplyChanges();
-
-           
-            mReader = new MapScene();
-            flags = new List<DrawInfo>();
-            timer = new Timer();
-
-            refugees = new List<Soldier>();
-            enemies = new List<Enemy>();
-            for (int i = 0; i < 10; i++)
-            {
-                Soldier tempSoldier = new Soldier();
-                tempSoldier.currentPathIndex = 0;
-                refugees.Add(tempSoldier);
-            }
-
+            gm = new GameSceneManager();
+            gm.Initialize(graphics);
 
             base.Initialize();
         }
@@ -145,30 +128,26 @@ namespace biNUICLeAR
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            Texture2D[] allTextures = new Texture2D[10];
+            allTextures[0] = Content.Load<Texture2D>("Graphics\\Ground");
+            allTextures[1] = Content.Load<Texture2D>("Graphics\\baseBrick");
+            allTextures[2] = Content.Load<Texture2D>("Graphics\\werewolf");
+            allTextures[3] = Content.Load<Texture2D>("Graphics\\Flag");
+            allTextures[4] = Content.Load<Texture2D>("Graphics\\character");
+            allTextures[5] = Content.Load<Texture2D>("Graphics\\backupEnemy");
 
-            Texture2D textureGround = Content.Load<Texture2D>("Graphics\\Ground");
-            Texture2D textureBlock = Content.Load<Texture2D>("Graphics\\baseBrick");
-            Texture2D textureMine = Content.Load<Texture2D>("Graphics\\werewolf");
+            allTextures[7] = Content.Load<Texture2D>("Graphics\\Zombies-Run");
 
-            // Make texture change here
-            Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\character");
+            SpriteFont[] allFonts = new SpriteFont[6];
+            allFonts[0] = Content.Load<SpriteFont>("Information");
+            allFonts[1] = Content.Load<SpriteFont>("Number");
+
+            SoundEffectInstance [] allSounds = new SoundEffectInstance[10];
+            allSounds[0] = Content.Load<SoundEffect>("TeamAssaultLoop").CreateInstance();
+            allSounds[0].IsLooped = true;
             
+            gm.LoadGameContent(allTextures, allFonts, allSounds);
 
-            SpriteFont sf = Content.Load<SpriteFont>("Information");
-            gameInfo = sf;
-            SpriteFont generalFont = Content.Load<SpriteFont>("Number");
-            mReader.initMap(textureGround, textureMine,textureBlock,generalFont);
-            mReader.updateMap();
-            timer.init(generalFont);
-            int i = 0;
-            foreach (Soldier p in refugees)
-            {
-                p.Initialize(textureSoldier, new Vector2(i*10, 0));
-                Random rand = new Random((int)p.Position.LengthSquared());
-                p.speed = rand.Next(50, 75);
-                p.speed /= 100;
-                i++;
-            }
         }
 
         /// <summary>
@@ -189,47 +168,10 @@ namespace biNUICLeAR
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
             // TODO: Add your update logic here
-            UpdateEVERYTHING(gameTime);
-
-          
-            if (IsGameStart)
-            {
-                timer.Update(gameTime);
-                foreach (Soldier element in refugees)
-                {
-                    element.Update();
-                    if (element.endofpath())
-                    {
-
-                        return;
-                    }
-                    element.march(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, ref mReader);
-                }
-            }
-
-            isGameFinish = false;
-            foreach (Soldier element in refugees)
-            {
-                if (((int)element.Position.X / ConstValues.getTileSize != (int)endPosition.X) ||
-                    ((int)element.Position.Y / ConstValues.getTileSize != (int)endPosition.Y))
-                {
-                    break;
-                }
-                isGameFinish = true;
-            }
-
-            if (isGameFinish)
-            {
-                isGameStart = false;
-                //game end
-                endOutPut = string.Format(
-@"           Game End.  
-         Soldiers Left: {0}   
-Time Used:{1,3:00}:{2,3:000}:{3,3:000}"
-                                ,refugees.Count,timer.minute, timer.seconds, timer.miniseconds);
-            }
+            gm.UpdateGame(gameTime);
+            gm.UpdateActors(gameTime);
+            gm.UpdatePlayerInput(gameTime);
             base.Update(gameTime);
         }
 
@@ -241,240 +183,9 @@ Time Used:{1,3:00}:{2,3:000}:{3,3:000}"
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
-            mReader.drawMap(spriteBatch);
-            timer.draw(spriteBatch);
-            foreach (Soldier element in refugees)
-                element.Draw(spriteBatch);
-            foreach (Enemy element in enemies)
-            {
-                element.Draw(spriteBatch);
-            }
-
-            foreach(DrawInfo flag in flags)
-                spriteBatch.Draw(flag.texture, flag.position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.0f);
-            if (isGameFinish)
-            {
-                Vector2 size = gameInfo.MeasureString(endOutPut);
-                spriteBatch.DrawString(gameInfo, endOutPut, new Vector2(ConstValues.getScreenWidth / 2 - size.X/2, ConstValues.getScreenHeight / 2 - size.Y/2), Color.Black);
-            }
+            gm.drawGame(gameTime, spriteBatch);
             spriteBatch.End();
             base.Draw(gameTime);
-        }
-        //Better name for function
-        private void UpdateEVERYTHING(GameTime gameTime)
-        {
-            secondsBetweenUpdate += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            secondsBetweenPressureSpawn += (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (secondsBetweenPressureSpawn >= ConstValues.getStartPressureTime)
-            {
-                secondsBetweenPressureSpawn = 0;
-                Enemy temp = new Enemy();
-                Texture2D textureEnemy = Content.Load<Texture2D>("Graphics\\backupEnemy");
-                temp.Initialize(textureEnemy, new Vector2(0, 0));
-                enemies.Add(temp);
-            }
-
-            foreach (Enemy element in enemies)
-            {
-                if (refugees.Count > 0)
-                    if (secondsBetweenUpdate >= 10 || element.closeToRefugee(refugees[0].Position))
-                    {
-                        if (element.closeToRefugee(refugees[0].Position))
-                        {
-                            secondsSinceLastUpdate += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                            if (secondsSinceLastUpdate < 0.5)
-                                break;
-                            else
-                                secondsSinceLastUpdate = 0;
-                            if (element.death(refugees[0].Position))
-                            {
-                                enemies.Remove(element);
-                                refugees.Remove(refugees[0]);
-                                return;
-                            }
-
-                            element.isHuntingMode = true;
-                        }
-                        else
-                            element.isHuntingMode = false;
-                        element.recalculatePath(mReader.GetMap, updateGoal(element));
-                    }
-            }
-            if (secondsBetweenUpdate >= 10)
-                secondsBetweenUpdate = 0;
-            currentMouseState = Mouse.GetState();
-            currentKeyState = Keyboard.GetState();
-
-            if (currentMouseState.LeftButton == ButtonState.Pressed && currentMouseState.RightButton == ButtonState.Pressed)
-            {
-                Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
-                mReader.DetectBlocks((int)mousePosition.X / ConstValues.getTileSize, (int)mousePosition.Y / ConstValues.getTileSize);
-            }
-            else if (currentMouseState.LeftButton == ButtonState.Pressed)
-            {
-                Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
-                mReader.RevealBlock((int)mousePosition.X/ConstValues.getTileSize, (int)mousePosition.Y/ConstValues.getTileSize);
-                if ((((int)mousePosition.X / ConstValues.getTileSize) <= ConstValues.getTilesHorizontal) && (((int)mousePosition.Y / ConstValues.getTileSize) <= ConstValues.getTilesVertical) && (((int)mousePosition.X / ConstValues.getTileSize) > 0) && (((int)mousePosition.Y / ConstValues.getTileSize) > 0))
-                {
-                    if (mReader.mapTiles[(int)mousePosition.Y / ConstValues.getTileSize, (int)mousePosition.X / ConstValues.getTileSize].isMined && mReader.mapTiles[(int)mousePosition.Y / ConstValues.getTileSize, (int)mousePosition.X / ConstValues.getTileSize].isRevealed)
-                    {
-                        for (int i = 0; i <= 5; i++)
-                        {
-                            Enemy temp = new Enemy();
-                            Texture2D textureEnemy = Content.Load<Texture2D>("Graphics\\backupEnemy");
-                            temp.Initialize(textureEnemy, mReader.mapTiles[(int)mousePosition.Y / ConstValues.getTileSize, (int)mousePosition.X / ConstValues.getTileSize].Position);
-                            enemies.Add(temp);
-                        }
-
-                    }
-                }
-
-            }
-            else if(currentMouseState.MiddleButton == ButtonState.Pressed)
-            {
-                Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
-                for (int i = 0; i < refugees.Count; i++)
-                {
-                        refugees[i].recalculatePath(mReader.GetMap, new Vector2((int)currentMouseState.X / ConstValues.getTileSize, (int)currentMouseState.Y / ConstValues.getTileSize));
-
-                }
-
-
-            }
-            else if (currentMouseState.RightButton == ButtonState.Pressed)
-            {
-                Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
-                if(mReader.GetMap[(int)mousePosition.Y / ConstValues.getTileSize,(int)mousePosition.X / ConstValues.getTileSize].isRevealed)
-                {
-                    foreach (Soldier s in refugees)
-                        s.recalculatePath(mReader.GetMap, new Vector2((int)currentMouseState.X / ConstValues.getTileSize, (int)currentMouseState.Y / ConstValues.getTileSize));
-                }
-                else
-                {
-                    if (mReader.PlaceFlag((int)mousePosition.X / ConstValues.getTileSize, (int)mousePosition.Y / ConstValues.getTileSize))
-                    {
-                        flags.Add(new DrawInfo(Content.Load<Texture2D>("Graphics//Flag.png"), new Vector2(ConstValues.getTileSize * ((int)mousePosition.X / ConstValues.getTileSize), ConstValues.getTileSize * ((int)mousePosition.Y / ConstValues.getTileSize))));
-                    }
-                    else
-                    {
-                        for (int i = 0; i < flags.Count; i++)
-                        {
-                            DrawInfo f = flags.ElementAt(i);
-                            if ((f.position.X == ConstValues.getTileSize * ((int)mousePosition.X / ConstValues.getTileSize) &&
-                                (f.position.Y == ConstValues.getTileSize * ((int)mousePosition.Y / ConstValues.getTileSize))))
-                            {
-                                flags.Remove(f);
-                            }
-                        }
-                    }
-                }              
-            }
-
-            if (currentKeyState.IsKeyDown(Keys.Back))
-            {
-                if (isGameFinish)
-                {
-                    isGameStart = isGameFinish = false;
-                    mReader.resetMap();
-                    mReader.updateMap();
-                    timer.reset();
-                    
-                    refugees.Clear();
-                    refugees = new List<Soldier>();
-                    for (int i = 0; i < 1; i++)
-                    {
-                        Soldier tempSoldier = new Soldier();
-                        tempSoldier.currentPathIndex = 0;
-                        refugees.Add(tempSoldier);
-                    }
-                    Texture2D textureSoldier = Content.Load<Texture2D>("Graphics\\charactersprite");
-                    foreach (Soldier p in refugees)
-                    {
-                        p.Initialize(textureSoldier, p.Position);
-                    }
-
-                }
-            }
-            if (currentKeyState.IsKeyDown(Keys.Space))
-            {
-                mReader.RevealBlock(0, 0);
-                IsGameStart = !IsGameStart;
-                foreach(Soldier s in refugees)
-                {
-                    s.recalculatePath(mReader.GetMap, endPosition);
-                }
-            }
-            if (IsGameStart)
-            {
-                int i = 0;
-                foreach (Soldier element in refugees)
-                {
-                    element.Update();
-                    if (element.endofpath())
-                    {
-                    } 
-                    else                   
-                        element.march(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height,ref mReader);
-                    i++;
-                }
-                foreach (Enemy element in enemies)
-                {
-                    element.Update();
-                    if (element.endofpath())
-                    {
-                        element.recalculatePath(mReader.GetMap, updateGoal(element));
-                    }
-                    element.march(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, ref mReader);
-                }
-
-
-            }
-        }
-
-        private void UpdateBlocks(float posX, float posY)
-        {
-            int indexX = (int)posX / ConstValues.getTileSize;
-            int indexY = (int)posY / ConstValues.getTileSize;
-            if (indexX < 0 || indexY < 0 || indexX > ConstValues.getTilesHorizontal - 1 || indexY > ConstValues.getTilesVertical - 1)
-            {
-                return;
-            }    
-        }
-
-        private void restartLevel()
-        {
-            
-        }
-
-        private void updateFlags(float posX, float posY)
-        {
-            int indexX = (int)posX / ConstValues.getTileSize;
-            int indexY = (int)posY / ConstValues.getTileSize;
-            if (indexX < 0 || indexY < 0 || indexX > ConstValues.getTilesHorizontal - 1 || indexY > ConstValues.getTilesVertical - 1)
-            {
-                return;
-            }
-            foreach (Soldier element in refugees)
-            {
-                element.currentPathIndex = 0;
-            }
-        }
-
-        private Vector2 updateGoal(Enemy e)
-        {
-            if (e.isHuntingMode == true)
-            {
-                return refugees[0].Position/ ConstValues.getTileSize;
-            }
-            else
-            {
-                Random random = new Random((int)e.Position.LengthSquared());
-                int nrVerti = random.Next(ConstValues.getTilesVertical);
-                int nrHoriz = random.Next(ConstValues.getTilesHorizontal);
-                return new Vector2(nrHoriz, nrVerti);
-            }
-
         }
     }
 }
