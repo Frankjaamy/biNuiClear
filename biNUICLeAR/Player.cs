@@ -132,9 +132,10 @@ namespace GameActor
     {
         
         public int currentPathIndex = 0;
-        PathFinder pathFinder;
+        public PathFinder pathFinder;
 
         public int detectRadius = 3;
+
 
         public Vector2 Direction
         {
@@ -221,7 +222,7 @@ namespace GameActor
         }
         public bool endofpath()
         {
-            if (pathFinder.getPathNodes.Count <= 0)
+            if (pathFinder.getPathNodes.Count == currentPathIndex)
             {
 
                 return true;
@@ -289,8 +290,6 @@ namespace GameActor
         {
             float distance = Vector2.Distance(this.Position, pos);
             int scanSize;
-            if (distance < 0)
-                distance *= -1;
             if (isHuntingMode)
             {
                 scanSize = 10;
@@ -308,7 +307,7 @@ namespace GameActor
         public bool death(Vector2 pos)
         {
             float distance = Vector2.Distance(this.Position, pos);
-            if (distance <= (ConstValues.getTileSize))
+            if (distance <= (ConstValues.getTileSize*2))
                 return true;
             return false;
         }

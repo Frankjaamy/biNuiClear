@@ -20,7 +20,7 @@ namespace biNUICLeAR
     public static class ConstValues
     {
         const int TileSize = 16;
-        const int StartPressureTimeSeconds = 1 * 60;//60 sec
+        const int StartPressureTimeSeconds = 1 * 10;//60 sec
         const int TilesVertical = 48;
         const int TilesHorizontal = 64;
 
@@ -78,6 +78,7 @@ namespace biNUICLeAR
         private List<Enemy> enemies;
         float secondsBetweenUpdate;
         float secondsBetweenPressureSpawn;
+        float secondsSinceLastUpdate;
         MouseState currentMouseState;
         KeyboardState currentKeyState;
 
@@ -125,7 +126,7 @@ namespace biNUICLeAR
 
             refugees = new List<Soldier>();
             enemies = new List<Enemy>();
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 10; i++)
             {
                 Soldier tempSoldier = new Soldier();
                 tempSoldier.currentPathIndex = 0;
@@ -159,9 +160,14 @@ namespace biNUICLeAR
             mReader.initMap(textureGround, textureMine,textureBlock,generalFont);
             mReader.updateMap();
             timer.init(generalFont);
+            int i = 0;
             foreach (Soldier p in refugees)
             {
-                p.Initialize(textureSoldier, p.Position);
+                p.Initialize(textureSoldier, new Vector2(i*10, 0));
+                Random rand = new Random((int)p.Position.LengthSquared());
+                p.speed = rand.Next(50, 75);
+                p.speed /= 100;
+                i++;
             }
         }
 
@@ -196,6 +202,7 @@ namespace biNUICLeAR
                     element.Update();
                     if (element.endofpath())
                     {
+
                         return;
                     }
                     element.march(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, ref mReader);
@@ -275,7 +282,12 @@ Time Used:{1,3:00}:{2,3:000}:{3,3:000}"
                     {
                         if (element.closeToRefugee(refugees[0].Position))
                         {
-                            if(element.death(refugees[0].Position))
+                            secondsSinceLastUpdate += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                            if (secondsSinceLastUpdate < 0.5)
+                                break;
+                            else
+                                secondsSinceLastUpdate = 0;
+                            if (element.death(refugees[0].Position))
                             {
                                 enemies.Remove(element);
                                 refugees.Remove(refugees[0]);
@@ -322,8 +334,12 @@ Time Used:{1,3:00}:{2,3:000}:{3,3:000}"
             else if(currentMouseState.MiddleButton == ButtonState.Pressed)
             {
                 Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
-                foreach (Soldier s in refugees)
-                    s.recalculatePath(mReader.GetMap, new Vector2((int)currentMouseState.X / ConstValues.getTileSize, (int)currentMouseState.Y / ConstValues.getTileSize));
+                for (int i = 0; i < refugees.Count; i++)
+                {
+                        refugees[i].recalculatePath(mReader.GetMap, new Vector2((int)currentMouseState.X / ConstValues.getTileSize, (int)currentMouseState.Y / ConstValues.getTileSize));
+
+                }
+
 
             }
             else if (currentMouseState.RightButton == ButtonState.Pressed)
@@ -391,15 +407,16 @@ Time Used:{1,3:00}:{2,3:000}:{3,3:000}"
             }
             if (IsGameStart)
             {
-
+                int i = 0;
                 foreach (Soldier element in refugees)
                 {
                     element.Update();
                     if (element.endofpath())
                     {
-                       return;
-                    }                    
-                    element.march(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height,ref mReader);
+                    } 
+                    else                   
+                        element.march(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height,ref mReader);
+                    i++;
                 }
                 foreach (Enemy element in enemies)
                 {
