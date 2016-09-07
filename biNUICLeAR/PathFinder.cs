@@ -154,7 +154,7 @@ namespace biNUICLeAR
                     {
                         int x = pCurrent.x + offset[i, 0];
                         int y = pCurrent.y + offset[i,1];
-                        if(x < 0 || y < 0 || x >= ConstValues.getTilesHorizontal || y >= ConstValues.getTilesVertical)
+                        if(x < 0 || y < 0 || x >= OptionValues.getTilesHorizontal || y >= OptionValues.getTilesVertical)
                         {
                             continue;
                         }
@@ -208,7 +208,7 @@ namespace biNUICLeAR
             {
                 return true;
             }
-            if(x + sizeX >ConstValues.getTilesVertical || y + sizeY > ConstValues.getTilesHorizontal)
+            if(x + sizeX >OptionValues.getTilesVertical || y + sizeY > OptionValues.getTilesHorizontal)
             {
                 return true;
             }
@@ -218,8 +218,8 @@ namespace biNUICLeAR
                 {
                     int indexX = x + i;
                     int indexY = y + j;
-                    indexX = indexX >= ConstValues.getTilesVertical ? ConstValues.getTilesVertical - 1 : indexX;
-                    indexY = indexY >= ConstValues.getTilesHorizontal ? ConstValues.getTilesHorizontal - 1 : indexY;
+                    indexX = indexX >= OptionValues.getTilesVertical ? OptionValues.getTilesVertical - 1 : indexX;
+                    indexY = indexY >= OptionValues.getTilesHorizontal ? OptionValues.getTilesHorizontal - 1 : indexY;
                     indexY = indexY < 0 ? 0 : indexY;
                     indexX = indexX < 0 ? 0 : indexX;
                     if (!map[indexX, indexY].isRevealed)
@@ -241,8 +241,8 @@ namespace biNUICLeAR
                 {
                     int indexX = x + i;
                     int indexY = y + j;
-                    indexX = indexX >= ConstValues.getTilesVertical ? ConstValues.getTilesVertical - 1 : indexX;
-                    indexY = indexY >= ConstValues.getTilesHorizontal ? ConstValues.getTilesHorizontal - 1 : indexY;
+                    indexX = indexX >= OptionValues.getTilesVertical ? OptionValues.getTilesVertical - 1 : indexX;
+                    indexY = indexY >= OptionValues.getTilesHorizontal ? OptionValues.getTilesHorizontal - 1 : indexY;
                     indexY = indexY < 0 ? 0 : indexY;
                     indexX = indexX < 0 ? 0 : indexX;
                     if (map[indexX, indexY].isMined && map[indexX,indexY].isRevealed)

@@ -25,3 +25,9 @@
 /processorParam:TextureFormat=Compressed
 /build:Information.spritefont
 
+#begin TeamAssaultLoop.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:TeamAssaultLoop.wav
+
