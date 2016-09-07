@@ -18,13 +18,17 @@ namespace biNUICLeAR
         public int Row { get; set; }
         public int Column { get; set; }
         private int currentFrame = 0;
-        private int totalFrames = 3;
+        public int totalFrames = 3;
         private int width;
         private int height;
         private bool animationDirUp = true;
 
         private int frameCounter;
-        private int numberOfFrames;
+        public int numberOfFrames;
+
+        public int DeathAnimationNr = 0;
+        public bool isDone = false;
+        public int playAnimationAfterFrames = 12;
 
         public Animator(Texture2D texture, int row, int column)
         {
@@ -39,33 +43,46 @@ namespace biNUICLeAR
 
         public void Update()
         {
-            frameCounter++;
-            if (frameCounter > 12)
+            if (!isDone)
             {
-                if (animationDirUp)
-                {
-                    currentFrame++;
-                }
-                else
-                {
-                    currentFrame--;
-                }
+                frameCounter++;
 
-                if (currentFrame == totalFrames)
+                if (frameCounter > playAnimationAfterFrames)
                 {
-                     if (animationDirUp == true)
+                    if (animationDirUp)
                     {
-                        animationDirUp = false;
-                        totalFrames = 0;
+                        currentFrame++;
                     }
                     else
                     {
-                        animationDirUp = true;
-                         totalFrames = numberOfFrames-1;
+                        currentFrame--;
                     }
-                }
 
-                frameCounter = 0;
+                    if (currentFrame == totalFrames)
+                    {
+                        if (DeathAnimationNr == 2)
+                        {
+                            isDone = true;
+                        }
+                        else if (DeathAnimationNr > 0)
+                        {
+                            currentFrame = 0;
+                            return;
+                        }
+                        if (animationDirUp)
+                        {
+                            animationDirUp = false;
+                            totalFrames = 0;
+                        }
+                        else
+                        {
+                            animationDirUp = true;
+                            totalFrames = numberOfFrames - 1;
+                        }
+                    }
+
+                    frameCounter = 0;
+                }
             }
         }
 

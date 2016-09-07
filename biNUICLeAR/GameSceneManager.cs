@@ -102,7 +102,7 @@ namespace biNUICLeAR
                         OptionValues.getScreenWidth = 16 * OptionValues.getTileSize;
                         OptionValues.getScreenHeight = 16 * OptionValues.getTileSize;
                         OptionValues.getSoldierCount = 3;
-                        OptionValues.getMinesCount = 30;
+                        OptionValues.getMinesCount = 40;
                         OptionValues.getEnemyCount = 1;
                     }
                     break;
@@ -141,7 +141,7 @@ namespace biNUICLeAR
                 tempSoldier.Initialize(allTextures[(int)TextureType.TexSoldier], new Vector2(i * 10, 0));
 
                 Random rand = new Random((int)tempSoldier.Position.LengthSquared());
-                tempSoldier.speed = rand.Next(50, 75);
+                tempSoldier.speed = rand.Next(25, 50);
                 tempSoldier.speed /= 100;
 
                 refugees.Add(tempSoldier);
@@ -264,20 +264,21 @@ namespace biNUICLeAR
             else if (currentMouseState.LeftButton == ButtonState.Pressed)
             {
                 isAllowInput = false;
-                if (mReader.GetMap[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isFlag)
-                {
-                    for (int i = 0; i < flags.Count; i++)
+                if ((((int)mousePosition.X) <= OptionValues.getScreenWidth) && (((int)mousePosition.Y <= OptionValues.getScreenHeight) && (((int)mousePosition.X) >= 0) && ((int)mousePosition.Y >= 0)))
+                    if (mReader.GetMap[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isFlag)
                     {
-                        DrawInfo f = flags.ElementAt(i);
-                        if ((f.position.X == OptionValues.getTileSize * ((int)mousePosition.X / OptionValues.getTileSize) &&
-                            (f.position.Y == OptionValues.getTileSize * ((int)mousePosition.Y / OptionValues.getTileSize))))
+                        for (int i = 0; i < flags.Count; i++)
                         {
-                            flags.Remove(f);
+                            DrawInfo f = flags.ElementAt(i);
+                            if ((f.position.X == OptionValues.getTileSize * ((int)mousePosition.X / OptionValues.getTileSize) &&
+                                (f.position.Y == OptionValues.getTileSize * ((int)mousePosition.Y / OptionValues.getTileSize))))
+                            {
+                                flags.Remove(f);
+                            }
                         }
                     }
-                }
                 mReader.RevealBlock((int)mousePosition.X / OptionValues.getTileSize, (int)mousePosition.Y / OptionValues.getTileSize);
-                if ((((int)mousePosition.X / OptionValues.getTileSize) <= OptionValues.getTilesHorizontal) && (((int)mousePosition.Y / OptionValues.getTileSize) <= OptionValues.getTilesVertical) && (((int)mousePosition.X / OptionValues.getTileSize) > 0) && (((int)mousePosition.Y / OptionValues.getTileSize) > 0))
+                if ((((int)mousePosition.X) <= OptionValues.getScreenWidth) && (((int)mousePosition.Y <= OptionValues.getScreenHeight) && (((int)mousePosition.X) >= 0) && ((int)mousePosition.Y >= 0)))
                 {
                     isAllowInput = false;
                     if (mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isMined && mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isRevealed)
@@ -295,6 +296,7 @@ namespace biNUICLeAR
             }
             else if (currentMouseState.RightButton == ButtonState.Pressed)
             {
+                if ((int)mousePosition.Y < OptionValues.getScreenHeight && (int)mousePosition.Y < OptionValues.getScreenWidth)
                 if (mReader.GetMap[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isRevealed)
                 {
                     isAllowInput = true;

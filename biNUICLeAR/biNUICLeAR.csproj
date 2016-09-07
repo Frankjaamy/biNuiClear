@@ -80,6 +80,7 @@
     <Content Include="Content\Graphics\baseBrick.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Graphics\blood.png" />
     <Content Include="Content\Graphics\character.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

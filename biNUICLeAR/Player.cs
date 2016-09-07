@@ -196,24 +196,6 @@ namespace GameActor
                 Position.X += direction.X * speed/ OptionValues.getTileSize;
                 Position.Y += direction.Y * speed / OptionValues.getTileSize;
             }
-
-#if  false
-            map.quickResetMapDetection();
-            int indexY = (int)Position.Y / ConstValues.getTileSize;
-            int indexX = (int)Position.X / ConstValues.getTileSize;
-            for (int i = indexX - detectRadius; i < indexX + sizeX + detectRadius; i++)
-            {
-                for (int j = indexY - detectRadius; j < indexY + sizeY + detectRadius; j++)
-                {
-                    if (i < 0 || j < 0 || i > ConstValues.getTilesHorizontal || j > ConstValues.getTilesVertical)
-                    {
-                        continue;
-                    }
-                    map.RevealBlock(i, j, false);
-                }
-            } 
-#endif
-
         }
         public void recalculatePath(Tiles[,] map, Vector2 endPoint)
         {
@@ -227,12 +209,16 @@ namespace GameActor
         public bool endofpath()
         {
             if (pathFinder.getPathNodes.Count == currentPathIndex)
-            {
-
                 return true;
-            }
             else
                 return false;
+        }
+
+        public void changeAnimation(Texture2D texture, int framesBetweenPictureChange)
+        {
+            animator.Texture = texture;
+            animator.numberOfFrames = (texture.Width / OptionValues.getTileSize) - 1;
+            animator.playAnimationAfterFrames = framesBetweenPictureChange;
         }
     }
 
@@ -311,10 +297,12 @@ namespace GameActor
         public bool death(Vector2 pos)
         {
             float distance = Vector2.Distance(this.Position, pos);
-            if (distance <= (OptionValues.getTileSize))
+            if (distance <= (OptionValues.getTileSize*2))
                 return true;
             return false;
         }
+
+
 
         public bool searchingTarget()
         {
