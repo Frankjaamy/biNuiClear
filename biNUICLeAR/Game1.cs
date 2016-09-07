@@ -29,11 +29,18 @@ namespace biNUICLeAR
         static int ScreenWidth = TilesHorizontal*TileSize;
         static int ScreenHeight = TilesVertical * TileSize;
 
+        public static Vector2 endPos = new Vector2(0,0);
+
         static int soldiersCount = 5;
         public static int getSoldierCount
         {
             set { soldiersCount = value; }
             get { return soldiersCount; }
+        }
+        public static Vector2 EndPosition
+        {
+            set { endPos = value; }
+            get { return endPos; }
         }
 
         static int minesCount = 5;
@@ -136,8 +143,8 @@ namespace biNUICLeAR
             allTextures[4] = Content.Load<Texture2D>("Graphics\\character");
             allTextures[5] = Content.Load<Texture2D>("Graphics\\backupEnemy");
 
+            allTextures[6] = Content.Load<Texture2D>("Graphics\\CastleSprite");
             allTextures[7] = Content.Load<Texture2D>("Graphics\\Zombies-Run");
-
             SpriteFont[] allFonts = new SpriteFont[6];
             allFonts[0] = Content.Load<SpriteFont>("Information");
             allFonts[1] = Content.Load<SpriteFont>("Number");
@@ -145,7 +152,13 @@ namespace biNUICLeAR
             SoundEffectInstance [] allSounds = new SoundEffectInstance[10];
             allSounds[0] = Content.Load<SoundEffect>("TeamAssaultLoop").CreateInstance();
             allSounds[0].IsLooped = true;
-            
+            allSounds[1] = Content.Load<SoundEffect>("Click on Regular Block").CreateInstance();
+            allSounds[2] = Content.Load<SoundEffect>("Click on Monster Block").CreateInstance();
+            allSounds[3] = Content.Load<SoundEffect>("Click to Move").CreateInstance();
+            allSounds[4] = Content.Load<SoundEffect>("Character Death Yell").CreateInstance();
+            allSounds[5] = Content.Load<SoundEffect>("Character Death Blood Splat").CreateInstance();
+            allSounds[6] = Content.Load<SoundEffect>("Success").CreateInstance();
+            allSounds[7] = Content.Load<SoundEffect>("Game Over").CreateInstance();
             gm.LoadGameContent(allTextures, allFonts, allSounds);
 
         }

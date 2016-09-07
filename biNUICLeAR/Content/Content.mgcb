@@ -31,3 +31,51 @@
 /processorParam:Quality=Best
 /build:TeamAssaultLoop.wav
 
+#begin Character Death Blood Splat.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Character Death Blood Splat.wav
+
+#begin Character Death Yell.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Character Death Yell.wav
+
+#begin Click on Monster Block.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Click on Monster Block.wav
+
+#begin Click on Regular Block.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Click on Regular Block.wav
+
+#begin Click to Move.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Click to Move.wav
+
+#begin Game Over.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Game Over.wav
+
+#begin Rising Grave.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Rising Grave.wav
+
+#begin Success.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Success.wav
+

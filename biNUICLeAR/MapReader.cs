@@ -11,6 +11,7 @@ namespace biNUICLeAR
 {
     class MapScene
     {
+        public Texture2D endCastle;
         public Tiles[,] mapTiles;
         int[,] offset ={
                 {-1,-1},
@@ -31,10 +32,9 @@ namespace biNUICLeAR
         {
 
         }
-        public bool initMap(Texture2D textGround, Texture2D mined,Texture2D mask, SpriteFont f = null)
+        public bool initMap(Texture2D textGround, Texture2D mined,Texture2D mask, Texture2D castleTex ,Vector2 endPosition, SpriteFont f = null)
         {
             mapTiles = new Tiles[OptionValues.getTilesVertical, OptionValues.getTilesHorizontal];
-
             for (int i = 0; i < OptionValues.getTilesVertical; i++)
             {
                 for (int j = 0; j < OptionValues.getTilesHorizontal; j++)
@@ -52,12 +52,13 @@ namespace biNUICLeAR
             {
                 int indexX = rm.Next(1, OptionValues.getTilesVertical);
                 int indexY = rm.Next(1, OptionValues.getTilesHorizontal);
-                if(indexX<6 && indexY < 6)
+                if((indexX<6 && indexY < 6) || (indexX>=OptionValues.getTilesVertical-3 && indexY >= OptionValues.getTilesHorizontal-3))
                 {
                     continue;
                 }
                 mapTiles[indexX, indexY].isMined = true;
             }
+            endCastle = castleTex;
             return true;
         }
 
@@ -88,6 +89,8 @@ namespace biNUICLeAR
                     }
                 }
             }
+            Vector2 vecEnd = new Vector2(OptionValues.getScreenWidth - endCastle.Width, OptionValues.getScreenHeight - endCastle.Height);
+            spriteBatch.Draw(endCastle, vecEnd, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.0f);
         }
         public void modifyValues(ref int x, ref int y)
         {
@@ -202,7 +205,7 @@ namespace biNUICLeAR
             return mapTiles[y, x].isFlag;
         }
 
-        public bool DetectBlocks(int x, int y)
+        public bool DetectBlocks(int x, int y, ref List<Vector2> vList)
         {
             if (x < 0 || y < 0 || y > OptionValues.getTilesVertical - 1 || x > OptionValues.getTilesHorizontal - 1)
             {
@@ -230,8 +233,12 @@ namespace biNUICLeAR
                         modifyValues(ref indexX, ref indexY);
                         if (!mapTiles[indexY,indexX].isFlag)
                         {
-                            mapTiles[indexY, indexX].isRevealed = true;
-                        }  
+                            if (mapTiles[indexY, indexX].isMined )
+                            {
+                                vList.Add(new Vector2(indexY, indexX));
+                            }
+                            RevealBlock(indexX, indexY);
+                        }
                     }
                 }
             }

@@ -29,6 +29,17 @@ namespace biNUICLeAR
         TexCastle,
         TexBackgroundStartMenu
     }
+    public enum SoundType
+    {
+        sBackground = 0,
+        sClickRegular,
+        sClickMonster,
+        sClickMove,
+        sDeathYell,
+        sDeathBloodSplat,
+        sSuccess,
+        sGameOver
+    }
     public enum FontType
     {
         fontGeneral = 0,
@@ -146,10 +157,9 @@ namespace biNUICLeAR
 
                 refugees.Add(tempSoldier);
             }
-            mReader.initMap(allTextures[(int)TextureType.TexGround], allTextures[(int)TextureType.TexMine], allTextures[(int)TextureType.TexBlock], allFonts[(int)FontType.fontNumber]);
-            mReader.updateMap();
-
-            endPosition = new Vector2(OptionValues.getTilesHorizontal - 1, OptionValues.getTilesVertical - 1);       
+            endPosition = new Vector2(OptionValues.getTilesHorizontal - 1, OptionValues.getTilesVertical - 1);
+            mReader.initMap(allTextures[(int)TextureType.TexGround], allTextures[(int)TextureType.TexMine], allTextures[(int)TextureType.TexBlock], allTextures[(int)TextureType.TexCastle], endPosition, allFonts[(int)FontType.fontNumber]);
+            mReader.updateMap();           
         }
         public void LoadGameContent(Texture2D [] textures, SpriteFont [] fonts, SoundEffectInstance [] sounds)
         {
@@ -209,6 +219,7 @@ namespace biNUICLeAR
                     backGroundMusic.Stop();
                     backGroundMusic.Play();
                     mReader.RevealBlock(0, 0);
+                    mReader.RevealBlock((int)endPosition.X, (int)endPosition.Y);
                 }
                 return;
             }
@@ -243,6 +254,7 @@ namespace biNUICLeAR
             {
                 isAllowInput = false;
                 mReader.RevealBlock(0, 0);
+                mReader.RevealBlock((int)endPosition.X, (int)endPosition.Y);
                 IsGameStart = !IsGameStart;
                 backGroundMusic.Stop();
                 backGroundMusic.Play();
@@ -258,11 +270,34 @@ namespace biNUICLeAR
             }
             if (currentMouseState.LeftButton == ButtonState.Pressed && currentMouseState.RightButton == ButtonState.Pressed)
             {
+                allSounds[(int)SoundType.sClickRegular].Stop();
+                allSounds[(int)SoundType.sClickRegular].Play();
                 isAllowInput = false;
-                mReader.DetectBlocks((int)mousePosition.X / OptionValues.getTileSize, (int)mousePosition.Y / OptionValues.getTileSize);
+                List<Vector2> list = new List<Vector2>();
+                mReader.DetectBlocks((int)mousePosition.X / OptionValues.getTileSize, (int)mousePosition.Y / OptionValues.getTileSize,ref list);
+                foreach(Vector2 v in list)
+                {
+                    isAllowInput = false;
+                    if (true)
+                    {
+                        allSounds[(int)SoundType.sClickMonster].Stop();
+                        allSounds[(int)SoundType.sClickMonster].Play();
+                        for (int i = 0; i <= 5; i++)
+                        {
+                            Enemy temp = new Enemy();
+                            Texture2D textureEnemy = allTextures[(int)TextureType.TexEnemy];
+                            temp.Initialize(textureEnemy, mReader.mapTiles[(int)v.X, (int)v.Y].Position);
+                            enemies.Add(temp);
+                        }
+                    }
+                }
+
             }
             else if (currentMouseState.LeftButton == ButtonState.Pressed)
             {
+                allSounds[(int)SoundType.sClickRegular].Stop();
+                allSounds[(int)SoundType.sClickRegular].Play();
+
                 isAllowInput = false;
                 if (mReader.GetMap[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isFlag)
                 {
@@ -282,6 +317,8 @@ namespace biNUICLeAR
                     isAllowInput = false;
                     if (mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isMined && mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isRevealed)
                     {
+                        allSounds[(int)SoundType.sClickMonster].Stop();
+                        allSounds[(int)SoundType.sClickMonster].Play();
                         for (int i = 0; i <= 5; i++)
                         {
                             Enemy temp = new Enemy();
@@ -295,6 +332,8 @@ namespace biNUICLeAR
             }
             else if (currentMouseState.RightButton == ButtonState.Pressed)
             {
+                allSounds[(int)SoundType.sClickMove].Stop();
+                allSounds[(int)SoundType.sClickMove].Play();
                 if (mReader.GetMap[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isRevealed)
                 {
                     isAllowInput = true;
