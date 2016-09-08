@@ -32,9 +32,11 @@ namespace biNUICLeAR
         {
 
         }
-        public bool initMap(Texture2D textGround, Texture2D mined,Texture2D mask, Texture2D castleTex ,Vector2 endPosition, SpriteFont f = null)
+
+        public bool initMap(Texture2D textGround, Texture2D mined,Texture2D[] mask, Texture2D castleTex, Vector2 endPosition, SpriteFont f = null)
         {
             mapTiles = new Tiles[OptionValues.getTilesVertical, OptionValues.getTilesHorizontal];
+            Random rand = new Random();
             for (int i = 0; i < OptionValues.getTilesVertical; i++)
             {
                 for (int j = 0; j < OptionValues.getTilesHorizontal; j++)
@@ -42,7 +44,7 @@ namespace biNUICLeAR
                     mapTiles[i, j] = new Tiles();
                     mapTiles[i, j].Position = new Vector2(j * OptionValues.getTileSize, i * OptionValues.getTileSize);
                     mapTiles[i, j].PlayerTexture = textGround;
-                    mapTiles[i, j].TextureMask = mask;
+                    mapTiles[i, j].TextureMask = mask[rand.Next(20, mask.Length)];
                     mapTiles[i, j].TextureMined = mined;
                     mapTiles[i, j].initFont(f);
                 }

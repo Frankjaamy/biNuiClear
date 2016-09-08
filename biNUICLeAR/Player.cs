@@ -196,24 +196,6 @@ namespace GameActor
                 Position.X += direction.X * speed/ OptionValues.getTileSize;
                 Position.Y += direction.Y * speed / OptionValues.getTileSize;
             }
-
-#if  false
-            map.quickResetMapDetection();
-            int indexY = (int)Position.Y / ConstValues.getTileSize;
-            int indexX = (int)Position.X / ConstValues.getTileSize;
-            for (int i = indexX - detectRadius; i < indexX + sizeX + detectRadius; i++)
-            {
-                for (int j = indexY - detectRadius; j < indexY + sizeY + detectRadius; j++)
-                {
-                    if (i < 0 || j < 0 || i > ConstValues.getTilesHorizontal || j > ConstValues.getTilesVertical)
-                    {
-                        continue;
-                    }
-                    map.RevealBlock(i, j, false);
-                }
-            } 
-#endif
-
         }
         public void recalculatePath(Tiles[,] map, Vector2 endPoint)
         {
@@ -227,12 +209,20 @@ namespace GameActor
         public bool endofpath()
         {
             if (pathFinder.getPathNodes.Count == currentPathIndex)
-            {
-
                 return true;
-            }
             else
                 return false;
+        }
+
+        public void changeAnimation(Texture2D texture, int framesBetweenPictureChange)
+        {
+            animator.Texture = texture;
+            animator.numberOfFrames = (texture.Width / OptionValues.getTileSize);
+            animator.totalFrames = (texture.Width / OptionValues.getTileSize);
+            animator.currentFrame = 0;
+            animator.animationDirUp = true;
+            animator.playAnimationAfterFrames = framesBetweenPictureChange;
+            animator.isDead = true;
         }
     }
 
@@ -246,6 +236,7 @@ namespace GameActor
         public bool searchAndDestroyMode = false;
         public bool isHuntingMode;
         public bool isDead;
+        public bool isWhite = false;
 
         public Vector2 Direction
         {
@@ -270,9 +261,17 @@ namespace GameActor
             this.Position = position;
             DestPosition = position;
             actorType = ActorType.typeEnemyWander;
-            animator = new Animator(PlayerTexture, 1, 3);
+            animator = new Animator(PlayerTexture, 1, 5);
+            animator.playAnimationAfterFrames = 4;
             Health = 100;
-            speed = 0.50f;
+            if (isWhite)
+            {
+                speed = 0.05f;
+            }
+            else
+            {
+                speed = 0.50f;
+            }
             sizeX = 1;
             sizeY = 1;
             isHuntingMode = isDead  = false;
@@ -292,33 +291,34 @@ namespace GameActor
 
         public bool closeToRefugee(Vector2 pos)
         {
-            float distance = Vector2.Distance(this.Position, pos);
-            int scanSize;
-            if (isHuntingMode)
+            if (!isWhite)
             {
-                scanSize = 10;
+                float distance = Vector2.Distance(this.Position, pos);
+                int scanSize;
+                if (isHuntingMode)
+                {
+                    scanSize = 10;
+                }
+                else
+                    scanSize = 5;
+                if (distance < (OptionValues.getTileSize * scanSize))
+                {
+                    return true;
+                }
+                else
+                    return false;
             }
             else
-                scanSize = 5;
-            if (distance < (OptionValues.getTileSize*scanSize))
-            {
                 return true;
-            }
-            else
-                return false;
+
         }
 
         public bool death(Vector2 pos)
         {
             float distance = Vector2.Distance(this.Position, pos);
-            if (distance <= (OptionValues.getTileSize))
+            if (distance <= (OptionValues.getTileSize*2))
                 return true;
             return false;
-        }
-
-        public bool searchingTarget()
-        {
-            return true;
         }
 
         public void march(ref MapScene map)

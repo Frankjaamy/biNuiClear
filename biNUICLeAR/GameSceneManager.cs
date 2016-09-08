@@ -26,7 +26,9 @@ namespace biNUICLeAR
         TexEnemy,
         TexCastle,
         TexCutScene,
-        TexBackgroundStartMenu
+        TexBackgroundStartMenu,
+        TexDeath,
+        TexWhiteEnemy
     }
     public enum SoundType
     {
@@ -64,7 +66,10 @@ namespace biNUICLeAR
         bool isGameFinish = false;
 
         MapScene mReader;
+
         private List<Soldier> soldiers;
+        private List<Soldier> deadSoldiers;
+
         private List<Enemy> enemies;
 
         List<DrawInfo> flags;
@@ -89,7 +94,9 @@ namespace biNUICLeAR
             flags = new List<DrawInfo>();
             timer = new Timer();
 
+
             soldiers = new List<Soldier>();
+            deadSoldiers = new List<Soldier>();
             enemies = new List<Enemy>();
 
             curStage = GameStage.StageStartMenu;
@@ -123,7 +130,7 @@ namespace biNUICLeAR
                     soldiers.Add(tempSoldier);
                 }
                 endPosition = new Vector2(OptionValues.getTilesHorizontal - 2, OptionValues.getTilesVertical - 1);
-                mReader.initMap(allTextures[(int)TextureType.TexGround], allTextures[(int)TextureType.TexMine], allTextures[(int)TextureType.TexBlock], allTextures[(int)TextureType.TexCastle], endPosition, allFonts[(int)FontType.fontNumber]);
+                mReader.initMap(allTextures[(int)TextureType.TexGround], allTextures[(int)TextureType.TexMine], allTextures, allTextures[(int)TextureType.TexCastle], endPosition, allFonts[(int)FontType.fontNumber]);
                 mReader.updateMap();
                 return;
             }
@@ -136,7 +143,7 @@ namespace biNUICLeAR
                         OptionValues.getScreenWidth = 16 * OptionValues.getTileSize;
                         OptionValues.getScreenHeight = 16 * OptionValues.getTileSize;
                         OptionValues.getSoldierCount = 3;
-                        OptionValues.getMinesCount = 30;
+                        OptionValues.getMinesCount = 40;
                         OptionValues.getEnemyCount = 1;
                         sizeFont = 0.5f;
                     }
@@ -178,13 +185,13 @@ namespace biNUICLeAR
                 tempSoldier.Initialize(allTextures[(int)TextureType.TexSoldier], new Vector2(i * 10, 0));
 
                 Random rand = new Random((int)tempSoldier.Position.LengthSquared());
-                tempSoldier.speed = rand.Next(50, 75);
+                tempSoldier.speed = rand.Next(25, 50);
                 tempSoldier.speed /= 100;
 
                 soldiers.Add(tempSoldier);
             }
             endPosition = new Vector2(OptionValues.getTilesHorizontal - 2, OptionValues.getTilesVertical - 1);
-            mReader.initMap(allTextures[(int)TextureType.TexGround], allTextures[(int)TextureType.TexMine], allTextures[(int)TextureType.TexBlock], allTextures[(int)TextureType.TexCastle], endPosition, allFonts[(int)FontType.fontNumber]);
+            mReader.initMap(allTextures[(int)TextureType.TexGround], allTextures[(int)TextureType.TexMine], allTextures, allTextures[(int)TextureType.TexCastle], endPosition, allFonts[(int)FontType.fontNumber]);
             mReader.updateMap();  
         }
         public void LoadGameContent(Texture2D [] textures, SpriteFont [] fonts, SoundEffectInstance [] sounds)
@@ -259,6 +266,7 @@ namespace biNUICLeAR
                     mReader.updateMap();
                     timer.reset();
 
+                    deadSoldiers.Clear();
                     soldiers.Clear();
                     enemies.Clear();
                     flags.Clear();
@@ -271,6 +279,7 @@ namespace biNUICLeAR
                 {
                     return;
                 }
+
                 if (currentMouseState.LeftButton == ButtonState.Pressed && currentMouseState.RightButton == ButtonState.Pressed)
                 {
                     allSounds[(int)SoundType.sClickRegular].Stop();
@@ -294,7 +303,6 @@ namespace biNUICLeAR
                             }
                         }
                     }
-
                 }
                 else if (currentMouseState.LeftButton == ButtonState.Pressed)
                 {
@@ -314,15 +322,15 @@ namespace biNUICLeAR
                             }
                         }
                     }
-                    mReader.RevealBlock((int)mousePosition.X / OptionValues.getTileSize, (int)mousePosition.Y / OptionValues.getTileSize);
+
                     if ((((int)mousePosition.X / OptionValues.getTileSize) <= OptionValues.getTilesHorizontal) && (((int)mousePosition.Y / OptionValues.getTileSize) <= OptionValues.getTilesVertical) && (((int)mousePosition.X / OptionValues.getTileSize) > 0) && (((int)mousePosition.Y / OptionValues.getTileSize) > 0))
                     {
                         isAllowInput = false;
-                        if (mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isMined && mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isRevealed)
+                        if (mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isMined && !mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isRevealed)
                         {
                             allSounds[(int)SoundType.sClickMonster].Stop();
                             allSounds[(int)SoundType.sClickMonster].Play();
-                            for (int i = 0; i <= 5; i++)
+                            for (int i = 0; i <= OptionValues.getEnemyCount; i++)
                             {
                                 Enemy temp = new Enemy();
                                 Texture2D textureEnemy = allTextures[(int)TextureType.TexEnemy];
@@ -331,7 +339,7 @@ namespace biNUICLeAR
                             }
                         }
                     }
-
+                    mReader.RevealBlock((int)mousePosition.X / OptionValues.getTileSize, (int)mousePosition.Y / OptionValues.getTileSize);
                 }
                 else if (currentMouseState.RightButton == ButtonState.Pressed)
                 {
@@ -389,6 +397,7 @@ namespace biNUICLeAR
                 return;
             }
 
+
             graphics.PreferredBackBufferWidth = OptionValues.getScreenWidth;
             graphics.PreferredBackBufferHeight = OptionValues.getScreenHeight;
             graphics.ApplyChanges();          
@@ -403,12 +412,12 @@ namespace biNUICLeAR
             {
                 mReader.drawMap(spriteBatch);
                 timer.draw(spriteBatch);
+                foreach (Soldier element in deadSoldiers)
+                    element.Draw(spriteBatch);
                 foreach (Soldier element in soldiers)
                     element.Draw(spriteBatch);
                 foreach (Enemy element in enemies)
-                {
                     element.Draw(spriteBatch);
-                }
 
                 foreach (DrawInfo flag in flags)
                     spriteBatch.Draw(flag.texture, flag.position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.0f);
@@ -440,6 +449,9 @@ namespace biNUICLeAR
                     if (!element.endofpath())
                         element.march(ref mReader);
                 }
+
+                foreach (Soldier element in deadSoldiers)
+                    element.Update();
             }
 
             isGameFinish = false;
@@ -502,36 +514,51 @@ Time Used:{1,3:00}:{2,3:000}:{3,3:000}"
             {
                 secondsBetweenPressureSpawn = 0;
                 Enemy temp = new Enemy();
-                Texture2D textureEnemy = allTextures[(int)TextureType.TexEnemy];
+                Texture2D textureEnemy = allTextures[(int)TextureType.TexWhiteEnemy];
                 temp.Initialize(textureEnemy, new Vector2(0, 0));
+                temp.isWhite = true;
+                temp.isHuntingMode = true;
                 enemies.Add(temp);
             }
 
             foreach (Enemy element in enemies)
             {
-                if (soldiers.Count > 0)
-                    if (secondsBetweenUpdate >= 10 || element.closeToRefugee(soldiers[0].Position))
-                    {
-                        if (element.closeToRefugee(soldiers[0].Position))
+                foreach (Soldier s in soldiers)
+                {
+                    if (soldiers.Count > 0)
+                    { 
+                        if (secondsBetweenUpdate >= 10 || element.closeToRefugee(s.Position))
                         {
-                            secondsSinceLastUpdate += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                            if (secondsSinceLastUpdate < 0.5)
-                                break;
-                            else
-                                secondsSinceLastUpdate = 0;
-                            if (element.death(soldiers[0].Position))
+                            if (element.closeToRefugee(s.Position))
                             {
-                                enemies.Remove(element);
-                                soldiers.Remove(soldiers[0]);
-                                return;
-                            }
+                                secondsSinceLastUpdate += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                                if (secondsSinceLastUpdate < 0.5)
+                                    break;
+                                else
+                                    secondsSinceLastUpdate = 0;
+                                if (element.death(s.Position))
+                                {
+                                    allSounds[(int)SoundType.sDeathBloodSplat].IsLooped = false;
+                                    allSounds[(int)SoundType.sDeathBloodSplat].Play();
 
-                            element.isHuntingMode = true;
+                                    allSounds[(int)SoundType.sDeathYell].IsLooped = false;
+                                    allSounds[(int)SoundType.sDeathYell].Play();
+
+                                    Soldier deadSoldier = s;
+                                    soldiers.Remove(s);
+                                    deadSoldier.changeAnimation(allTextures[(int)TextureType.TexDeath], 10);
+                                    deadSoldiers.Add(deadSoldier);
+                                    enemies.Remove(element);
+                                    return;
+                                }
+                                element.isHuntingMode = true;
+                            }
+                            else
+                                element.isHuntingMode = false;
+                            element.recalculatePath(mReader.GetMap, updateGoal(element));
                         }
-                        else
-                            element.isHuntingMode = false;
-                        element.recalculatePath(mReader.GetMap, updateGoal(element));
-               }
+                    }
+                }
             }
             if (secondsBetweenUpdate >= 10)
                 secondsBetweenUpdate = 0;

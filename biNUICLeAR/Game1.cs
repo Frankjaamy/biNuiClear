@@ -134,17 +134,39 @@ namespace biNUICLeAR
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            Texture2D[] allTextures = new Texture2D[10];
+            Texture2D[] allTextures = new Texture2D[27];
             allTextures[0] = Content.Load<Texture2D>("Graphics\\Ground");
-            allTextures[1] = Content.Load<Texture2D>("Graphics\\baseBrick");
-            allTextures[2] = Content.Load<Texture2D>("Graphics\\werewolf");
+            allTextures[1] = Content.Load<Texture2D>("Graphics\\baseBrick2");
+            allTextures[2] = Content.Load<Texture2D>("Graphics\\skull");
             allTextures[3] = Content.Load<Texture2D>("Graphics\\Flag");
             allTextures[4] = Content.Load<Texture2D>("Graphics\\character");
-            allTextures[5] = Content.Load<Texture2D>("Graphics\\backupEnemy");
+            allTextures[5] = Content.Load<Texture2D>("Graphics\\regularenemy");
 
+    
             allTextures[6] = Content.Load<Texture2D>("Graphics\\CastleSprite");
             allTextures[7] = Content.Load<Texture2D>("Graphics\\Cutscene");
             allTextures[8] = Content.Load<Texture2D>("Graphics\\Level Select");
+
+
+            allTextures[9] = Content.Load<Texture2D>("Graphics\\blood2grave2");
+            allTextures[10] = Content.Load<Texture2D>("Graphics\\chaseenemy.png");
+            allTextures[11] = Content.Load<Texture2D>("Graphics\\block1");
+            allTextures[12] = Content.Load<Texture2D>("Graphics\\block2");
+            allTextures[13] = Content.Load<Texture2D>("Graphics\\block3");
+            allTextures[14] = Content.Load<Texture2D>("Graphics\\block4");
+            allTextures[15] = Content.Load<Texture2D>("Graphics\\block5");
+            allTextures[16] = Content.Load<Texture2D>("Graphics\\block6");
+            allTextures[17] = Content.Load<Texture2D>("Graphics\\block7");
+            allTextures[18] = Content.Load<Texture2D>("Graphics\\block8");
+            allTextures[19] = Content.Load<Texture2D>("Graphics\\block9");
+            allTextures[20] = Content.Load<Texture2D>("Graphics\\block10");
+            allTextures[21] = Content.Load<Texture2D>("Graphics\\block11");
+            allTextures[22] = Content.Load<Texture2D>("Graphics\\block12");
+            allTextures[23] = Content.Load<Texture2D>("Graphics\\block13");
+            allTextures[24] = Content.Load<Texture2D>("Graphics\\block14");
+            allTextures[25] = Content.Load<Texture2D>("Graphics\\block15");
+            allTextures[26] = Content.Load<Texture2D>("Graphics\\block16");
+
             SpriteFont[] allFonts = new SpriteFont[6];
             allFonts[0] = Content.Load<SpriteFont>("Information");
             allFonts[1] = Content.Load<SpriteFont>("Number");
