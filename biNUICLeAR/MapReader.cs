@@ -47,17 +47,6 @@ namespace biNUICLeAR
                     mapTiles[i, j].initFont(f);
                 }
             }
-            Random rm = new Random();
-            for (int i = 0; i < OptionValues.getMinesCount; i++)
-            {
-                int indexX = rm.Next(1, OptionValues.getTilesVertical);
-                int indexY = rm.Next(1, OptionValues.getTilesHorizontal);
-                if((indexX<6 && indexY < 6) || (indexX>=OptionValues.getTilesVertical-3 && indexY >= OptionValues.getTilesHorizontal-3))
-                {
-                    continue;
-                }
-                mapTiles[indexX, indexY].isMined = true;
-            }
             endCastle = castleTex;
             return true;
         }
@@ -101,6 +90,18 @@ namespace biNUICLeAR
         }
         public void updateMap()
         {
+            Random rm = new Random();
+            for (int i = 0; i < OptionValues.getMinesCount; i++)
+            {
+                int indexX = rm.Next(1, OptionValues.getTilesVertical);
+                int indexY = rm.Next(1, OptionValues.getTilesHorizontal);
+                if ((indexX < 6 && indexY < 6) || (indexX >= OptionValues.getTilesVertical - 3 && indexY >= OptionValues.getTilesHorizontal - 3))
+                {
+                    continue;
+                }
+                mapTiles[indexX, indexY].isMined = true;
+            }
+
             for (int i = 0; i < OptionValues.getTilesVertical; i++)
             {
                 for (int j = 0; j < OptionValues.getTilesHorizontal; j++)
@@ -123,6 +124,17 @@ namespace biNUICLeAR
                     {
                         mapTiles[i, j].isSafe = true;
                     }
+                }
+            }
+        }
+
+        public void updateCutSceneMap()
+        {
+            for (int i = 0; i < OptionValues.getTilesVertical; i++)
+            {
+                for (int j = 0; j < OptionValues.getTilesHorizontal; j++)
+                {
+                    
                 }
             }
         }

@@ -30,7 +30,6 @@ namespace biNUICLeAR
         static int ScreenHeight = TilesVertical * TileSize;
 
         public static Vector2 endPos = new Vector2(0,0);
-
         static int soldiersCount = 5;
         public static int getSoldierCount
         {
@@ -144,7 +143,8 @@ namespace biNUICLeAR
             allTextures[5] = Content.Load<Texture2D>("Graphics\\backupEnemy");
 
             allTextures[6] = Content.Load<Texture2D>("Graphics\\CastleSprite");
-            allTextures[7] = Content.Load<Texture2D>("Graphics\\Zombies-Run");
+            allTextures[7] = Content.Load<Texture2D>("Graphics\\Cutscene");
+            allTextures[8] = Content.Load<Texture2D>("Graphics\\Level Select");
             SpriteFont[] allFonts = new SpriteFont[6];
             allFonts[0] = Content.Load<SpriteFont>("Information");
             allFonts[1] = Content.Load<SpriteFont>("Number");
