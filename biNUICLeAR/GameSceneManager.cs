@@ -27,7 +27,9 @@ namespace biNUICLeAR
         TexSoldier,
         TexEnemy,
         TexCastle,
-        TexBackgroundStartMenu
+        TexBackgroundStartMenu,
+        TexDeath,
+        TexWhiteEnemy
     }
     public enum FontType
     {
@@ -55,6 +57,7 @@ namespace biNUICLeAR
 
         MapScene mReader;
         private List<Soldier> refugees;
+        private List<Soldier> deadRefugees;
         private List<Enemy> enemies;
 
         List<DrawInfo> flags;
@@ -78,6 +81,7 @@ namespace biNUICLeAR
             timer = new Timer();
 
             refugees = new List<Soldier>();
+            deadRefugees = new List<Soldier>();
             enemies = new List<Enemy>();
 
             curStage = GameStage.StageStartMenu;
@@ -146,7 +150,8 @@ namespace biNUICLeAR
 
                 refugees.Add(tempSoldier);
             }
-            mReader.initMap(allTextures[(int)TextureType.TexGround], allTextures[(int)TextureType.TexMine], allTextures[(int)TextureType.TexBlock], allFonts[(int)FontType.fontNumber]);
+            
+            mReader.initMap(allTextures[(int)TextureType.TexGround], allTextures[(int)TextureType.TexMine], allTextures, allFonts[(int)FontType.fontNumber]);
             mReader.updateMap();
 
             endPosition = new Vector2(OptionValues.getTilesHorizontal - 1, OptionValues.getTilesVertical - 1);       
@@ -277,13 +282,13 @@ namespace biNUICLeAR
                             }
                         }
                     }
-                mReader.RevealBlock((int)mousePosition.X / OptionValues.getTileSize, (int)mousePosition.Y / OptionValues.getTileSize);
+
                 if ((((int)mousePosition.X) <= OptionValues.getScreenWidth) && (((int)mousePosition.Y <= OptionValues.getScreenHeight) && (((int)mousePosition.X) >= 0) && ((int)mousePosition.Y >= 0)))
                 {
                     isAllowInput = false;
-                    if (mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isMined && mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isRevealed)
+                    if (mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isMined && !mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].isRevealed)
                     {
-                        for (int i = 0; i <= 5; i++)
+                        for (int i = 0; i < OptionValues.getEnemyCount; i++)
                         {
                             Enemy temp = new Enemy();
                             Texture2D textureEnemy = allTextures[(int)TextureType.TexEnemy];
@@ -291,6 +296,7 @@ namespace biNUICLeAR
                             enemies.Add(temp);
                         }
                     }
+                    mReader.RevealBlock((int)mousePosition.X / OptionValues.getTileSize, (int)mousePosition.Y / OptionValues.getTileSize);
                 }
 
             }
@@ -349,6 +355,8 @@ namespace biNUICLeAR
             {
                 element.Draw(spriteBatch);
             }
+            foreach (Soldier element in deadRefugees)
+                element.Draw(spriteBatch);
 
             foreach (DrawInfo flag in flags)
                 spriteBatch.Draw(flag.texture, flag.position, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.0f);
@@ -369,6 +377,9 @@ namespace biNUICLeAR
                     if (!element.endofpath())
                         element.march(ref mReader);
                 }
+
+                foreach (Soldier element in deadRefugees)
+                    element.Update();
             }
 
             isGameFinish = false;
@@ -403,36 +414,46 @@ Time Used:{1,3:00}:{2,3:000}:{3,3:000}"
             {
                 secondsBetweenPressureSpawn = 0;
                 Enemy temp = new Enemy();
-                Texture2D textureEnemy = allTextures[(int)TextureType.TexEnemy];
+                Texture2D textureEnemy = allTextures[(int)TextureType.TexWhiteEnemy];
                 temp.Initialize(textureEnemy, new Vector2(0, 0));
+                temp.isWhite = true;
+                temp.isHuntingMode = true;
                 enemies.Add(temp);
             }
 
             foreach (Enemy element in enemies)
             {
-                if (refugees.Count > 0)
-                    if (secondsBetweenUpdate >= 10 || element.closeToRefugee(refugees[0].Position))
-                    {
-                        if (element.closeToRefugee(refugees[0].Position))
+                foreach (Soldier s in refugees)
+                {
+                    if (refugees.Count > 0)
+                    { 
+                        if (secondsBetweenUpdate >= 10 || element.closeToRefugee(s.Position))
                         {
-                            secondsSinceLastUpdate += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                            if (secondsSinceLastUpdate < 0.5)
-                                break;
-                            else
-                                secondsSinceLastUpdate = 0;
-                            if (element.death(refugees[0].Position))
+                            if (element.closeToRefugee(s.Position))
                             {
-                                enemies.Remove(element);
-                                refugees.Remove(refugees[0]);
-                                return;
-                            }
+                                secondsSinceLastUpdate += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                                if (secondsSinceLastUpdate < 0.5)
+                                    break;
+                                else
+                                    secondsSinceLastUpdate = 0;
+                                if (element.death(s.Position))
+                                {
+                                    Soldier deadSoldier = s;
+                                    refugees.Remove(s);
+                                    deadSoldier.changeAnimation(allTextures[(int)TextureType.TexDeath], 10);
+                                    deadRefugees.Add(deadSoldier);
+                                    enemies.Remove(element);
+                                    return;
+                                }
 
-                            element.isHuntingMode = true;
+                                element.isHuntingMode = true;
+                            }
+                            else
+                                element.isHuntingMode = false;
+                            element.recalculatePath(mReader.GetMap, updateGoal(element));
                         }
-                        else
-                            element.isHuntingMode = false;
-                        element.recalculatePath(mReader.GetMap, updateGoal(element));
-               }
+                    }
+                }
             }
             if (secondsBetweenUpdate >= 10)
                 secondsBetweenUpdate = 0;

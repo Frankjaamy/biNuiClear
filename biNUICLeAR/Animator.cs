@@ -17,16 +17,16 @@ namespace biNUICLeAR
         public Texture2D Texture { get; set; }
         public int Row { get; set; }
         public int Column { get; set; }
-        private int currentFrame = 0;
+        public int currentFrame = 0;
         public int totalFrames = 3;
         private int width;
         private int height;
-        private bool animationDirUp = true;
+        public bool animationDirUp = true;
 
         private int frameCounter;
         public int numberOfFrames;
 
-        public int DeathAnimationNr = 0;
+        public bool isDead = false;
         public bool isDone = false;
         public int playAnimationAfterFrames = 12;
 
@@ -60,13 +60,9 @@ namespace biNUICLeAR
 
                     if (currentFrame == totalFrames)
                     {
-                        if (DeathAnimationNr == 2)
+                        if (isDead)
                         {
                             isDone = true;
-                        }
-                        else if (DeathAnimationNr > 0)
-                        {
-                            currentFrame = 0;
                             return;
                         }
                         if (animationDirUp)
@@ -79,11 +75,15 @@ namespace biNUICLeAR
                             animationDirUp = true;
                             totalFrames = numberOfFrames - 1;
                         }
+
+
                     }
 
                     frameCounter = 0;
                 }
             }
+            else
+                currentFrame = 10;
         }
 
         public void Draw(SpriteBatch spriteBatch, Vector2 location, Vector2 direction)
@@ -133,8 +133,7 @@ namespace biNUICLeAR
                     Row = 2;
                 }
             }*/
-
-            Column += currentFrame;
+            Column = currentFrame;
             Rectangle sourceRectangle = new Rectangle(width * Column, height * Row, width, height);
             Rectangle destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
 
