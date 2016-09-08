@@ -124,7 +124,7 @@ namespace biNUICLeAR
                     tempSoldier.Initialize(allTextures[(int)TextureType.TexSoldier], new Vector2(i * 10, 0));
 
                     Random rand = new Random((int)tempSoldier.Position.LengthSquared());
-                    tempSoldier.speed = rand.Next(50, 75);
+                    tempSoldier.speed = rand.Next(25, 50);
                     tempSoldier.speed /= 100;
 
                     soldiers.Add(tempSoldier);
@@ -143,7 +143,7 @@ namespace biNUICLeAR
                         OptionValues.getScreenWidth = 16 * OptionValues.getTileSize;
                         OptionValues.getScreenHeight = 16 * OptionValues.getTileSize;
                         OptionValues.getSoldierCount = 3;
-                        OptionValues.getMinesCount = 40;
+                        OptionValues.getMinesCount = 64;
                         OptionValues.getEnemyCount = 1;
                         sizeFont = 0.5f;
                     }
@@ -155,17 +155,17 @@ namespace biNUICLeAR
                         OptionValues.getScreenWidth = 32 * OptionValues.getTileSize;
                         OptionValues.getScreenHeight = 32 * OptionValues.getTileSize;
                         OptionValues.getSoldierCount = 6;
-                        OptionValues.getMinesCount = 150;
+                        OptionValues.getMinesCount = 250;
                         OptionValues.getEnemyCount = 3;
                         sizeFont = 1.0f;
                     }
                     break;
                 case 3:
                     {
-                        OptionValues.getTilesVertical = 48;
-                        OptionValues.getTilesHorizontal = 64;
-                        OptionValues.getScreenWidth = 64 * OptionValues.getTileSize;
-                        OptionValues.getScreenHeight = 48 * OptionValues.getTileSize;
+                        OptionValues.getTilesVertical = 32;
+                        OptionValues.getTilesHorizontal = 48;
+                        OptionValues.getScreenWidth = 48 * OptionValues.getTileSize;
+                        OptionValues.getScreenHeight = 32 * OptionValues.getTileSize;
                         OptionValues.getSoldierCount = 10;
                         OptionValues.getMinesCount = 500;
                         OptionValues.getEnemyCount = 5;
@@ -299,6 +299,9 @@ namespace biNUICLeAR
                                 Enemy temp = new Enemy();
                                 Texture2D textureEnemy = allTextures[(int)TextureType.TexEnemy];
                                 temp.Initialize(textureEnemy, mReader.mapTiles[(int)v.X, (int)v.Y].Position);
+                                Random rand = new Random(i);
+                                temp.speed = (float)rand.Next(25, 50);
+                                temp.speed /= 100;
                                 enemies.Add(temp);
                             }
                         }
@@ -335,6 +338,9 @@ namespace biNUICLeAR
                                 Enemy temp = new Enemy();
                                 Texture2D textureEnemy = allTextures[(int)TextureType.TexEnemy];
                                 temp.Initialize(textureEnemy, mReader.mapTiles[(int)mousePosition.Y / OptionValues.getTileSize, (int)mousePosition.X / OptionValues.getTileSize].Position);
+                                Random rand = new Random(i);
+                                temp.speed = (float)rand.Next(25, 50);
+                                temp.speed /= 100;
                                 enemies.Add(temp);
                             }
                         }
@@ -515,8 +521,8 @@ Time Used:{1,3:00}:{2,3:000}:{3,3:000}"
                 secondsBetweenPressureSpawn = 0;
                 Enemy temp = new Enemy();
                 Texture2D textureEnemy = allTextures[(int)TextureType.TexWhiteEnemy];
-                temp.Initialize(textureEnemy, new Vector2(0, 0));
                 temp.isWhite = true;
+                temp.Initialize(textureEnemy, new Vector2(0, 0));
                 temp.isHuntingMode = true;
                 enemies.Add(temp);
             }

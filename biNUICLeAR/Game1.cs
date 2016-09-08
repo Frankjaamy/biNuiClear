@@ -20,7 +20,7 @@ namespace biNUICLeAR
     /// 
     public static class OptionValues
     {
-        const int TileSize = 16;
+        const int TileSize = 32;
 
         const int StartPressureTimeSeconds = 1 * 60;//60 sec
         static int TilesVertical = 16;
@@ -132,7 +132,7 @@ namespace biNUICLeAR
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
+            // Create a SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             Texture2D[] allTextures = new Texture2D[27];
             allTextures[0] = Content.Load<Texture2D>("Graphics\\Ground");
